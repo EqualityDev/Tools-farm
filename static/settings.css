@@ -1,0 +1,403 @@
+/*
+ * settings.css — OwO-Dusk Settings Dashboard
+ * Extends style.css, same dark-purple theme
+ */
+
+/* ── Nav links ─────────────────────────────────────────────── */
+.nav-links {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-link {
+    color: #ccc5dd;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: background 0.15s;
+}
+
+.nav-link:hover {
+    background: rgba(164, 106, 224, 0.2);
+}
+
+.nav-link.active {
+    background: rgba(164, 106, 224, 0.35);
+    color: #f0e6ff;
+    font-weight: 600;
+}
+
+/* ── Tab bar ───────────────────────────────────────────────── */
+.tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 8px 0;
+}
+
+.tab-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(130,100,230,0.2);
+    color: #ccc5dd;
+    padding: 9px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.15s;
+}
+
+.tab-btn:hover {
+    background: rgba(164,106,224,0.2);
+    border-color: rgba(164,106,224,0.5);
+}
+
+.tab-btn.active {
+    background: rgba(164,106,224,0.35);
+    border-color: rgba(164,106,224,0.7);
+    color: #f0e6ff;
+    font-weight: 600;
+}
+
+/* ── Tab content ───────────────────────────────────────────── */
+.tab-content {
+    margin: 12px 8px;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+/* ── Setting rows ──────────────────────────────────────────── */
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 13px 0;
+    border-bottom: 1px solid rgba(130,100,230,0.12);
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.setting-row:last-child {
+    border-bottom: none;
+}
+
+.setting-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 160px;
+}
+
+.setting-label {
+    font-size: 0.95rem;
+    color: #e0d7f4;
+    font-weight: 500;
+}
+
+.setting-desc {
+    font-size: 0.78rem;
+    color: #8a7aaa;
+}
+
+/* ── Toggle switch ─────────────────────────────────────────── */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(130,100,230,0.3);
+    border-radius: 26px;
+    transition: 0.2s;
+}
+
+.slider:before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: #8a7aaa;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+
+input:checked + .slider {
+    background: rgba(164,106,224,0.5);
+    border-color: #a46ae0;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+    background: #d0a8ff;
+}
+
+/* ── Inputs ────────────────────────────────────────────────── */
+.text-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(130,100,230,0.3);
+    border-radius: 8px;
+    color: #e0d7f4;
+    padding: 7px 12px;
+    font-size: 0.88rem;
+    min-width: 260px;
+    flex: 1;
+    outline: none;
+    transition: border 0.15s;
+}
+
+.text-input:focus {
+    border-color: #a46ae0;
+}
+
+.num-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(130,100,230,0.3);
+    border-radius: 8px;
+    color: #e0d7f4;
+    padding: 7px 10px;
+    font-size: 0.88rem;
+    width: 80px;
+    outline: none;
+    text-align: center;
+    transition: border 0.15s;
+}
+
+.num-input:focus {
+    border-color: #a46ae0;
+}
+
+.input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.range-inputs {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: #8a7aaa;
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.btn-save {
+    background: rgba(164,106,224,0.25);
+    border: 1px solid rgba(164,106,224,0.5);
+    color: #d0a8ff;
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.btn-save:hover {
+    background: rgba(164,106,224,0.45);
+}
+
+.btn-primary {
+    background: rgba(164,106,224,0.35);
+    border: 1px solid rgba(164,106,224,0.7);
+    color: #f0e6ff;
+    padding: 10px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.btn-primary:hover {
+    background: rgba(164,106,224,0.55);
+    transform: translateY(-1px);
+}
+
+.btn-add {
+    margin-top: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px dashed rgba(130,100,230,0.4);
+    color: #a46ae0;
+    padding: 8px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: all 0.15s;
+}
+
+.btn-add:hover {
+    background: rgba(164,106,224,0.15);
+}
+
+.btn-danger {
+    background: rgba(220,53,69,0.15);
+    border: 1px solid rgba(220,53,69,0.4);
+    color: #ff8090;
+    padding: 5px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+}
+
+.btn-danger:hover {
+    background: rgba(220,53,69,0.3);
+}
+
+/* ── Section header with toggle ────────────────────────────── */
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.section-header-row h2 {
+    border-bottom: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── Sub heading ───────────────────────────────────────────── */
+.sub-heading {
+    color: #b09ecf;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 18px 0 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* ── User card (channel switcher) ──────────────────────────── */
+.user-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(130,100,230,0.2);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.user-card-header label {
+    color: #8a7aaa;
+    font-size: 0.82rem;
+}
+
+.channels-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.channel-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(164,106,224,0.15);
+    border: 1px solid rgba(164,106,224,0.3);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    color: #d0a8ff;
+}
+
+.channel-tag button {
+    background: none;
+    border: none;
+    color: #8a7aaa;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.1s;
+}
+
+.channel-tag button:hover {
+    color: #ff8090;
+}
+
+.add-channel-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+/* ── Hint text ─────────────────────────────────────────────── */
+.hint {
+    color: #6a5c88;
+    font-size: 0.82rem;
+    margin-bottom: 10px;
+}
+
+/* ── Toast ─────────────────────────────────────────────────── */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(24,18,45,0.95);
+    border: 1px solid rgba(164,106,224,0.6);
+    color: #e0d7f4;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: opacity 0.3s;
+}
+
+.toast.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toast.success {
+    border-color: rgba(100,200,120,0.6);
+    color: #a8ffb8;
+}
+
+.toast.error {
+    border-color: rgba(220,53,69,0.6);
+    color: #ff8090;
+}
+
+/* ── Cooldown badge ────────────────────────────────────────── */
+.cooldown-badge {
+    font-size: 0.75rem;
+    color: #6a5c88;
+    margin-left: 8px;
+}
+
+/* ── Mobile ────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .text-input { min-width: 100%; }
+    .setting-row { flex-direction: column; align-items: flex-start; }
+    .tab-btn { padding: 7px 12px; font-size: 0.82rem; }
+}

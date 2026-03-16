@@ -1,0 +1,5 @@
+tokens.txt
+config/global_settings.json
+__pycache__/
+*.pyc
+utils/data/
