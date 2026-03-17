@@ -40,6 +40,7 @@ class Slots(commands.Cog):
         }
         self.turns_lost = 0
         self.exceeded_max_amount = False
+        self.stopped = False
 
         self.gamble_flags = {
             "goal_reached": False,
@@ -57,6 +58,7 @@ class Slots(commands.Cog):
             asyncio.create_task(self.start_slots(startup=True))
 
     async def cog_unload(self):
+        self.stopped = True
         await self.bot.remove_queue(id="slots")
 
     async def start_slots(self, startup=False):
@@ -70,6 +72,10 @@ class Slots(commands.Cog):
             else:
                 await self.bot.remove_queue(id="slots")
                 await self.bot.sleep_till(cnf["cooldown"])
+            # Cek lagi setelah sleep
+            if self.stopped or not self.bot.settings_dict["gamble"]["slots"]["enabled"]:
+                await self.bot.log("slots dimatikan setelah sleep, berhenti.", "#4a270c")
+                return
 
             amount_to_gamble = int(
                 cnf["startValue"] * (cnf["multiplierOnLose"] ** self.turns_lost)
@@ -171,6 +177,8 @@ class Slots(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if self.stopped:
+            return
         if before.author.id != 408785106942164992:
             return
         if before.channel.id != self.bot.channel_id:

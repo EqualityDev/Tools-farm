@@ -114,6 +114,11 @@ class CustomCommands(commands.Cog):
 
     @tasks.loop()
     async def command_handler(self):
+        # Hot reload check
+        if not self.bot.settings_dict["customCommands"]["enabled"]:
+            await self.bot.log("customCommands dimatikan, berhenti.", "#4a270c")
+            self.command_handler.cancel()
+            return
         cd = self.approximate_minimum_cooldown()
         cnf = self.bot.settings_dict["customCommands"]["commands"]
         for cmd_dict in cnf:

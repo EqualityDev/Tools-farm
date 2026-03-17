@@ -62,6 +62,41 @@ async function apiPatch(endpoint, body) {
     return json;
 }
 
+// Map settings path ke nama cog
+const cogMap = {
+    "commands.hunt": "hunt",
+    "commands.battle": "battle",
+    "commands.sell": "sell",
+    "commands.sac": "sell",
+    "commands.pray": "pray",
+    "commands.curse": "pray",
+    "commands.lottery": "lottery",
+    "commands.lvlGrind": "level",
+    "commands.cookie": "cookie",
+    "commands.shop": "shop",
+    "commands.owo": "owo",
+    "commands.autoHuntBot": "huntbot",
+    "commands.customCommands": "customcommands",
+    "gamble.coinflip": "coinflip",
+    "gamble.slots": "slots",
+    "gamble.blackjack": "blackjack",
+    "bossBattle": "boss",
+    "giveawayJoiner": "giveaway",
+    "autoUse.gems": "gems",
+};
+
+async function toggleCog(path, value) {
+    const key = path.join(".");
+    const cogName = cogMap[key];
+    if (!cogName) return;
+    const action = value ? "load" : "unload";
+    await fetch("/api/toggle_cog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", password },
+        body: JSON.stringify({ cog: cogName, action })
+    });
+}
+
 // ── Toast ───────────────────────────────────────────────────
 let toastTimeout;
 function showToast(msg, type = "success") {
@@ -75,6 +110,10 @@ function showToast(msg, type = "success") {
 // ── Patch helpers ────────────────────────────────────────────
 async function patchSettings(path, value) {
     await apiPatch("/api/settings", { path, value });
+    // Jika toggle enabled, langsung load/unload cog
+    if (path[path.length - 1] === "enabled") {
+        await toggleCog(path.slice(0, -1), value);
+    }
 }
 
 async function patchGlobal(path, value) {
@@ -208,22 +247,46 @@ function renderCommands() {
     const cmds = settingsData.commands;
 
     Object.entries(cmds).forEach(([name, cfg]) => {
-        const row = document.createElement("div");
-        row.className = "setting-row";
-        const cd = cfg.cooldown ? `<span class="cooldown-badge">${cfg.cooldown[0]}–${cfg.cooldown[1]}s</span>` : "";
-        row.innerHTML = `
-            <div class="setting-info">
-                <span class="setting-label">${name} ${cd}</span>
-                <span class="setting-desc">${getCommandDesc(name)}</span>
+        const card = document.createElement("div");
+        card.className = "cmd-card";
+
+        // Cooldown row (jika ada)
+        const cdRow = cfg.cooldown ? `
+            <div class="cmd-extra-row">
+                <span class="setting-desc">Cooldown (detik)</span>
+                <div class="range-inputs">
+                    <input type="number" class="num-input" value="${cfg.cooldown[0]}" id="cd-min-${name}" min="1">
+                    <span>–</span>
+                    <input type="number" class="num-input" value="${cfg.cooldown[1]}" id="cd-max-${name}" min="1">
+                    <button class="btn-save" onclick="saveCooldown('${name}')">Save</button>
+                </div>
+            </div>` : "";
+
+        card.innerHTML = `
+            <div class="setting-row" style="border-bottom: ${cfg.cooldown ? '1px solid rgba(130,100,230,0.12)' : 'none'}; padding-bottom: 10px;">
+                <div class="setting-info">
+                    <span class="setting-label">${name}</span>
+                    <span class="setting-desc">${getCommandDesc(name)}</span>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" ${cfg.enabled ? "checked" : ""}
+                        onchange="patchSettings(['commands','${name}','enabled'], this.checked)">
+                    <span class="slider"></span>
+                </label>
             </div>
-            <label class="toggle">
-                <input type="checkbox" ${cfg.enabled ? "checked" : ""}
-                    onchange="patchSettings(['commands','${name}','enabled'], this.checked)">
-                <span class="slider"></span>
-            </label>
+            ${cdRow}
         `;
-        container.appendChild(row);
+        container.appendChild(card);
     });
+}
+
+async function saveCooldown(name) {
+    const min = parseInt(document.getElementById(`cd-min-${name}`).value);
+    const max = parseInt(document.getElementById(`cd-max-${name}`).value);
+    if (isNaN(min) || isNaN(max) || min < 1 || max < min) {
+        return showToast("Cooldown tidak valid (min harus < max)", "error");
+    }
+    await patchSettings(["commands", name, "cooldown"], [min, max]);
 }
 
 function renderGamble() {
@@ -231,23 +294,74 @@ function renderGamble() {
     container.innerHTML = "";
     const g = settingsData.gamble;
 
+    // Allotted amount
+    const allotRow = document.createElement("div");
+    allotRow.className = "cmd-card";
+    allotRow.innerHTML = `
+        <div class="setting-row">
+            <div class="setting-info">
+                <span class="setting-label">Allotted Amount</span>
+                <span class="setting-desc">Total cash yang dialokasikan untuk gambling</span>
+            </div>
+            <div class="input-group">
+                <input type="number" class="num-input" style="width:110px;" id="gamble-allotted" value="${g.allottedAmount}" min="0">
+                <button class="btn-save" onclick="patchSettings(['gamble','allottedAmount'], parseInt(document.getElementById('gamble-allotted').value))">Save</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(allotRow);
+
+    // Per-game cards
     ["coinflip", "slots", "blackjack"].forEach(name => {
         const cfg = g[name];
-        const row = document.createElement("div");
-        row.className = "setting-row";
-        row.innerHTML = `
-            <div class="setting-info">
-                <span class="setting-label">${name}</span>
-                <span class="setting-desc">Start: ${cfg.startValue} | Multiplier on lose: ×${cfg.multiplierOnLose}</span>
+        const card = document.createElement("div");
+        card.className = "cmd-card";
+        card.innerHTML = `
+            <div class="setting-row" style="border-bottom:1px solid rgba(130,100,230,0.12); padding-bottom:10px;">
+                <div class="setting-info">
+                    <span class="setting-label">${name}</span>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" ${cfg.enabled ? "checked" : ""}
+                        onchange="patchSettings(['gamble','${name}','enabled'], this.checked)">
+                    <span class="slider"></span>
+                </label>
             </div>
-            <label class="toggle">
-                <input type="checkbox" ${cfg.enabled ? "checked" : ""}
-                    onchange="patchSettings(['gamble','${name}','enabled'], this.checked)">
-                <span class="slider"></span>
-            </label>
+            <div class="cmd-extra-row">
+                <span class="setting-desc">Start Value</span>
+                <div class="input-group">
+                    <input type="number" class="num-input" style="width:100px;" id="g-start-${name}" value="${cfg.startValue}" min="1">
+                    <button class="btn-save" onclick="patchSettings(['gamble','${name}','startValue'], parseInt(document.getElementById('g-start-${name}').value))">Save</button>
+                </div>
+            </div>
+            <div class="cmd-extra-row">
+                <span class="setting-desc">Multiplier on Lose</span>
+                <div class="input-group">
+                    <input type="number" class="num-input" style="width:100px;" id="g-mult-${name}" value="${cfg.multiplierOnLose}" min="1" step="0.1">
+                    <button class="btn-save" onclick="patchSettings(['gamble','${name}','multiplierOnLose'], parseFloat(document.getElementById('g-mult-${name}').value))">Save</button>
+                </div>
+            </div>
+            <div class="cmd-extra-row">
+                <span class="setting-desc">Cooldown (detik)</span>
+                <div class="range-inputs">
+                    <input type="number" class="num-input" value="${cfg.cooldown[0]}" id="g-cd-min-${name}" min="1">
+                    <span>–</span>
+                    <input type="number" class="num-input" value="${cfg.cooldown[1]}" id="g-cd-max-${name}" min="1">
+                    <button class="btn-save" onclick="saveGambleCooldown('${name}')">Save</button>
+                </div>
+            </div>
         `;
-        container.appendChild(row);
+        container.appendChild(card);
     });
+}
+
+async function saveGambleCooldown(name) {
+    const min = parseInt(document.getElementById(`g-cd-min-${name}`).value);
+    const max = parseInt(document.getElementById(`g-cd-max-${name}`).value);
+    if (isNaN(min) || isNaN(max) || min < 1 || max < min) {
+        return showToast("Cooldown tidak valid", "error");
+    }
+    await patchSettings(["gamble", name, "cooldown"], [min, max]);
 }
 
 function renderOther() {

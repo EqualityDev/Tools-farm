@@ -279,6 +279,9 @@ class Gems(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        # Hot reload check
+        if not self.bot.settings_dict["autoUse"]["gems"]["enabled"]:
+            return
         nick = self.bot.get_nick(message)
         if (
             message.channel.id != self.bot.channel_id

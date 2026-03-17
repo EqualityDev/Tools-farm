@@ -48,6 +48,11 @@ class Sell(commands.Cog):
 
     async def sell_sac_queue(self, cmd, cooldown):
         await self.bot.sleep_till(cooldown)
+        cmd_name = cmd["cmd_name"]
+        setting_key = "sell" if cmd_name == "sell" else "sac"
+        if not self.bot.settings_dict["commands"][setting_key]["enabled"]:
+            await self.bot.log(f"{setting_key} dimatikan, berhenti.", "#4a270c")
+            return
         cmd["cmd_arguments"] = self.fetch_arguments(cmd["cmd_name"])
         await self.bot.put_queue(cmd)
 

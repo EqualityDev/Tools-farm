@@ -169,6 +169,11 @@ class Hunt(commands.Cog):
                 "you found:" in message.content.lower()
                 or "caught" in message.content.lower()
             ):
+                # Hot reload check
+                if not self.bot.settings_dict["commands"]["hunt"]["enabled"]:
+                    await self.bot.log("hunt dimatikan, berhenti.", "#4a270c")
+                    await self.bot.remove_queue(id="hunt")
+                    return
                 await self.bot.remove_queue(id="hunt")
 
                 msg_lines = message.content.splitlines()
@@ -215,6 +220,9 @@ class Hunt(commands.Cog):
                 await self.bot.sleep_till(
                     self.bot.settings_dict["commands"]["hunt"]["cooldown"]
                 )
+                if not self.bot.settings_dict["commands"]["hunt"]["enabled"]:
+                    await self.bot.log("hunt dimatikan, berhenti.", "#4a270c")
+                    return
                 self.cmd["cmd_name"] = (
                     self.bot.alias["hunt"]["shortform"]
                     if self.bot.settings_dict["commands"]["hunt"]["useShortForm"]

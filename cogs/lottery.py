@@ -47,6 +47,10 @@ class Lottery(commands.Cog):
         }
 
     async def start_lottery(self):
+        # Hot reload check
+        if not self.bot.settings_dict["commands"]["lottery"]["enabled"]:
+            await self.bot.log("lottery dimatikan, berhenti.", "#4a270c")
+            return
         if str(self.bot.user.id) in accounts_dict:
             last_lottery_time = accounts_dict[str(self.bot.user.id)].get("lottery", 0)
 
@@ -58,6 +62,9 @@ class Lottery(commands.Cog):
             await self.bot.sleep_till(
                 self.bot.settings_dict["defaultCooldowns"]["shortCooldown"]
             )
+            if not self.bot.settings_dict["commands"]["lottery"]["enabled"]:
+                await self.bot.log("lottery dimatikan setelah sleep, berhenti.", "#4a270c")
+                return
             await self.bot.put_queue(self.cmd)
 
             with lock:

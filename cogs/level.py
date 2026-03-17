@@ -45,11 +45,17 @@ class Level(commands.Cog):
         self.cmd = {"cmd_name": None, "prefix": False, "checks": True, "id": "level"}
 
     async def start_level_grind(self):
-        # await asyncio.sleep(1)
+        # Hot reload check
+        if not self.bot.settings_dict["commands"]["lvlGrind"]["enabled"]:
+            await self.bot.log("lvlGrind dimatikan, berhenti.", "#4a270c")
+            return
         await self.bot.remove_queue(id="level")
         cnf = self.bot.settings_dict["commands"]["lvlGrind"]
         try:
             await self.bot.sleep_till(cnf["cooldown"])
+            if not self.bot.settings_dict["commands"]["lvlGrind"]["enabled"]:
+                await self.bot.log("lvlGrind dimatikan setelah sleep, berhenti.", "#4a270c")
+                return
             if cnf["useQuoteInstead"]:
                 self.last_level_grind_message = await fetch_quotes(self.bot.session)
                 if not self.last_level_grind_message:

@@ -109,6 +109,9 @@ class Giveaway(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         """Join Giveaways"""
+        # Hot reload check
+        if not self.bot.settings_dict["giveawayJoiner"]["enabled"]:
+            return
         if (
             message.channel.id
             in self.bot.settings_dict["giveawayJoiner"]["channelsToJoin"]

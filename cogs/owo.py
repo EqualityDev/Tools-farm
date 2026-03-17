@@ -22,6 +22,10 @@ class Owo(commands.Cog):
         self.owo_ongoing = False
 
     async def send_owo(self, startup=False):
+        # Hot reload check
+        if not self.bot.settings_dict["commands"]["owo"]["enabled"]:
+            await self.bot.log("owo dimatikan, berhenti.", "#4a270c")
+            return
         cmd = {
             "cmd_name": "owo",
             "prefix": False,

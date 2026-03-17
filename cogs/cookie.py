@@ -48,6 +48,10 @@ class Cookie(commands.Cog):
     """change to conver times"""
 
     async def start_cookie(self):
+        # Hot reload check
+        if not self.bot.settings_dict["commands"]["cookie"]["enabled"]:
+            await self.bot.log("cookie dimatikan, berhenti.", "#4a270c")
+            return
         if str(self.bot.user.id) in accounts_dict:
             last_cookie_time = accounts_dict[str(self.bot.user.id)].get("cookie", 0)
 
@@ -59,6 +63,9 @@ class Cookie(commands.Cog):
             await self.bot.sleep_till(
                 self.bot.settings_dict["defaultCooldowns"]["briefCooldown"]
             )
+            if not self.bot.settings_dict["commands"]["cookie"]["enabled"]:
+                await self.bot.log("cookie dimatikan setelah sleep, berhenti.", "#4a270c")
+                return
             cnf = self.bot.settings_dict["commands"]["cookie"]
             self.cmd["cmd_arguments"] = (
                 f"<@{cnf['userid']}>" if cnf["pingUser"] else f"{cnf['userid']}"

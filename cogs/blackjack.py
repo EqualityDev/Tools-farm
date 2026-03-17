@@ -68,6 +68,7 @@ class Blackjack(commands.Cog):
 
         self.turns_lost = 0
         self.exceeded_max_amount = False
+        self.stopped = False
 
         self.gamble_flags = {
             "goal_reached": False,
@@ -85,6 +86,10 @@ class Blackjack(commands.Cog):
             )
         else:
             await self.bot.sleep_till(cnf["cooldown"])
+        # Cek lagi setelah sleep
+        if self.stopped or not self.bot.settings_dict["gamble"]["blackjack"]["enabled"]:
+            await self.bot.log("blackjack dimatikan setelah sleep, berhenti.", "#4a270c")
+            return
 
         amount_to_gamble = int(
             cnf["startValue"] * (cnf["multiplierOnLose"] ** self.turns_lost)
@@ -220,6 +225,8 @@ class Blackjack(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if self.stopped:
+            return
         if (
             message.channel.id == self.bot.cm.id
             and message.author.id == self.bot.owo_bot_id
@@ -251,6 +258,8 @@ class Blackjack(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if self.stopped:
+            return
         if (
             before.channel.id == self.bot.cm.id
             and before.author.id == self.bot.owo_bot_id

@@ -95,6 +95,10 @@ class Huntbot(commands.Cog):
     async def send_ah(
         self, startup=False, no_cash_arg=True, timeToSleep=None, ans=None
     ):
+        # Hot reload check — berhenti jika dimatikan via dashboard
+        if not self.bot.settings_dict["commands"]["autoHuntBot"]["enabled"]:
+            await self.bot.log("autoHuntBot dimatikan, berhenti.", "#4a270c")
+            return
         if startup:
             await asyncio.sleep(
                 self.bot.random_float(
@@ -112,6 +116,9 @@ class Huntbot(commands.Cog):
 
         """send the cmd"""
 
+        if not self.bot.settings_dict["commands"]["autoHuntBot"]["enabled"]:
+            await self.bot.log("autoHuntBot dimatikan setelah sleep, berhenti.", "#4a270c")
+            return
         if no_cash_arg:
             self.cmd["cmd_arguments"] = ""
         else:

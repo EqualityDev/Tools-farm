@@ -72,11 +72,25 @@ class Pray(commands.Cog):
             for cmd in ["pray", "curse"]
             if self.bot.settings_dict["commands"][cmd]["enabled"]
         ]
+        # Hot reload check
+        if not cmds:
+            await self.bot.log("pray/curse dimatikan, berhenti.", "#4a270c")
+            self.pray_curse_ongoing = False
+            return
+        if not cmds:
+            await self.bot.log("pray/curse dimatikan, berhenti.", "#4a270c")
+            self.pray_curse_ongoing = False
+            return
         cmd = self.bot.random.choice(cmds)  # pick a random enabled cmd
         cnf = self.bot.settings_dict["commands"][cmd]
         if not self.startup:
             await self.bot.remove_queue(id="pray")
             await self.bot.sleep_till(cnf["cooldown"])
+            cmds = [cmd for cmd in ["pray", "curse"] if self.bot.settings_dict["commands"][cmd]["enabled"]]
+            if not cmds:
+                await self.bot.log("pray/curse dimatikan setelah sleep, berhenti.", "#4a270c")
+                self.pray_curse_ongoing = False
+                return
             self.__dict__[f"{cmd}_cmd"]["checks"] = True
         else:
             await self.bot.sleep_till(

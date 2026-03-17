@@ -101,6 +101,9 @@ class Battle(commands.Cog):
                             await self.bot.sleep_till(
                                 self.bot.settings_dict["commands"]["battle"]["cooldown"]
                             )
+                            if not self.bot.settings_dict["commands"]["battle"]["enabled"]:
+                                await self.bot.log("battle dimatikan, berhenti.", "#4a270c")
+                                return
                             self.cmd["cmd_name"] = (
                                 self.bot.alias["battle"]["shortform"]
                                 if self.bot.settings_dict["commands"]["battle"][

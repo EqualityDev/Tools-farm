@@ -52,6 +52,10 @@ class Shop(commands.Cog):
         await self.bot.remove_queue(id="shop")
 
     async def send_buy(self, startup=False):
+        # Hot reload check
+        if not self.bot.settings_dict["commands"]["shop"]["enabled"]:
+            await self.bot.log("shop dimatikan, berhenti.", "#4a270c")
+            return
         cnf = self.bot.settings_dict["commands"]["shop"]
         valid_items = [item for item in cnf["itemsToBuy"] if item in range(1, 8)]
 
@@ -71,6 +75,9 @@ class Shop(commands.Cog):
         else:
             await self.bot.remove_queue(id="shop")
             await self.bot.sleep_till(cnf["cooldown"])
+        if not self.bot.settings_dict["commands"]["shop"]["enabled"]:
+            await self.bot.log("shop dimatikan setelah sleep, berhenti.", "#4a270c")
+            return
 
         if (
             cash_required[item] <= self.bot.user_status["balance"]

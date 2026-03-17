@@ -35,6 +35,7 @@ class Coinflip(commands.Cog):
         }
         self.turns_lost = 0
         self.exceeded_max_amount = False
+        self.stopped = False
 
         self.gamble_flags = {
             "goal_reached": False,
@@ -54,9 +55,14 @@ class Coinflip(commands.Cog):
             asyncio.create_task(self.start_cf(startup=True))
 
     async def cog_unload(self):
+        self.stopped = True
         await self.bot.remove_queue(id="coinflip")
 
     async def start_cf(self, startup=False):
+        # Berhenti jika cog di-unload atau disabled
+        if self.stopped or not self.bot.settings_dict["gamble"]["coinflip"]["enabled"]:
+            await self.bot.log("coinflip dimatikan, berhenti.", "#4a270c")
+            return
         cnf = self.bot.settings_dict["gamble"]["coinflip"]
         goal_system_dict = self.bot.settings_dict["gamble"]["goalSystem"]
         try:
@@ -67,6 +73,10 @@ class Coinflip(commands.Cog):
             else:
                 await self.bot.remove_queue(id="coinflip")
                 await self.bot.sleep_till(cnf["cooldown"])
+            # Cek lagi setelah sleep
+            if self.stopped or not self.bot.settings_dict["gamble"]["coinflip"]["enabled"]:
+                await self.bot.log("coinflip dimatikan setelah sleep, berhenti.", "#4a270c")
+                return
 
             amount_to_gamble = int(
                 cnf["startValue"] * (cnf["multiplierOnLose"] ** self.turns_lost)
@@ -172,6 +182,8 @@ class Coinflip(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if self.stopped or not self.bot.settings_dict["gamble"]["coinflip"]["enabled"]:
+            return
         if before.author.id != 408785106942164992:
             return
         if before.channel.id != self.bot.channel_id:

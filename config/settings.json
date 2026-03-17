@@ -53,7 +53,7 @@
             ]
         },
         "pray": {
-            "enabled": false,
+            "enabled": true,
             "cooldown": [
                 310,
                 400
@@ -79,7 +79,7 @@
             }
         },
         "lottery": {
-            "enabled": false,
+            "enabled": true,
             "amount": 1
         },
         "lvlGrind": {
@@ -149,7 +149,7 @@
             "amount": 300
         },
         "coinflip": {
-            "enabled": true,
+            "enabled": false,
             "startValue": 200,
             "multiplierOnLose": 2,
             "cooldown": [
@@ -161,7 +161,7 @@
             ]
         },
         "slots": {
-            "enabled": true,
+            "enabled": false,
             "startValue": 200,
             "multiplierOnLose": 2,
             "cooldown": [
@@ -170,7 +170,7 @@
             ]
         },
         "blackjack": {
-            "enabled": true,
+            "enabled": false,
             "startValue": 200,
             "multiplierOnLose": 2,
             "cooldown": [

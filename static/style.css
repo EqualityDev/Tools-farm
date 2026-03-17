@@ -1,0 +1,267 @@
+/*
+This file is part of owo-dusk.
+
+Copyright (c) 2024-present EchoQuill
+
+Portions of this file are based on code by EchoQuill, licensed under the
+GNU General Public License v3.0 (GPL-3.0).
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+*/
+
+body {
+    background-image:
+        /* Grid Layout */
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    background-color: #08060f;
+    color: #ffffff;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+nav {
+    width: 100%;
+}
+
+
+.nav-area {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    color: #ffffff;
+    background-color: rgba(8, 6, 15, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.nav-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1600px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 12px 0;
+}
+
+.support {
+    display: flex;
+    align-items: center;
+}
+
+.discord-icon {
+    height: 30px;
+    margin-right: 10px;
+}
+
+.icon {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.main-content-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.main-content-container>* {
+    margin: 8px;
+}
+
+.message {
+    margin: 6px 0;
+    padding: 8px 12px;
+    border-left: 4px solid #a46ae0;
+    background: rgba(50, 25, 80, 0.6);
+    border-radius: 6px;
+    color: #ffffff;
+}
+
+.timestamp {
+    font-size: 0.9em;
+    color: #d0d0d0;
+    margin-right: 10px;
+}
+
+.text {
+    display: inline-block;
+}
+
+.multi-items {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 1600px;
+    padding: 0;
+    gap: 16px;
+
+}
+
+.multi-items>.section-area {
+    flex: 1 1 0;
+    min-width: 0;
+    margin-left: 2px;
+    margin-right: 2px;
+    min-width: 330px;
+}
+
+.section-area {
+    background-color: rgba(15, 10, 30, 0.95);
+    height: 350px;
+    border-radius: 15px;
+    border: 1px solid rgba(130, 100, 230, 0.35);
+    padding: 15px;
+    transition: all 0.15s ease;
+    box-shadow: 0 0 10px rgba(100, 80, 200, 0.15);
+    overflow-x: auto;
+}
+
+.section-area-scroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #a46ae0 transparent;
+}
+
+.section-area-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+
+.section-area-scroll::-webkit-scrollbar-thumb {
+    background: #a46ae0;
+    border-radius: 4px;
+}
+
+.section-area:hover {
+    border: 2px solid rgba(140, 120, 250, 0.4);
+    transform: translateY(-4px);
+}
+
+.section-area h2 {
+    color: #ffffff;
+    border-bottom: 1px solid rgba(160, 130, 230, 0.6);
+    text-align: center;
+    padding-bottom: 10px;
+    font-size: 18px;
+}
+
+.section-area canvas {
+    max-height: 300px;
+    min-width: 1000px;
+}
+
+.cards-area {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #a46ae0 transparent;
+    display: flex;
+    justify-content: center;
+}
+
+.cards-area::-webkit-scrollbar {
+    height: 8px;
+}
+
+.cards-area::-webkit-scrollbar-thumb {
+    background: #a46ae0;
+    border-radius: 4px;
+}
+
+.cards-wrapper {
+    display: inline-flex;
+    gap: 40px;
+    padding: 20px;
+    min-width: max-content;
+}
+
+.card {
+    background-color: rgba(20, 14, 40, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(160, 130, 230, 0.3);
+    border-radius: 15px;
+    height: 200px;
+    width: 200px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.card-label {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.card-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.card-note {
+    font-size: 0.6rem;
+    color: #c0c0c0;
+    text-align: center;
+}
+
+.card:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+    /* zoom in effect */
+}
+
+
+
+.messages {
+    flex-grow: 1;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #a46ae0 transparent;
+}
+
+/* WebKit Scrollbar */
+.messages::-webkit-scrollbar {
+    width: 8px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+    background: #a46ae0;
+    border-radius: 4px;
+}
+
+
+/* Fix issues with horizontal scroll area */
+@media (max-width: 1200px) {
+    .cards-area {
+        justify-content: flex-start; 
+    }
+}
+
+/* Mobile Tweaks */
+@media (max-width: 768px) {
+    .nav-area {
+        position: static;
+    }
+
+
+    .section-area canvas {
+        min-width: 900px;
+    }
+}

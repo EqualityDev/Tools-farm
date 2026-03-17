@@ -89,13 +89,9 @@ class Boss(commands.Cog):
 
     @commands.Cog.listener()
     async def on_socket_raw_receive(self, msg):
-        """
-        https://discordpy-self.readthedocs.io/en/latest/api.html?highlight=on_socket_raw_receive#discord.on_socket_raw_receive
-        For this to work enable_debug_events argument was passed as True in client.
-
-        Right now we are getting the message object directly through on_socket_raw_receive
-        we may want to consider getting message once and sharing them instead to reduce unneccesory parsing of raw input.
-        """
+        # Hot reload check
+        if not self.bot.settings_dict["bossBattle"]["enabled"]:
+            return
 
         if self.boss_tickets <= 0 or self.sleeping:
             if not self.sleeping:

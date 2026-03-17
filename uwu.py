@@ -1,14 +1,3 @@
-# This file is part of owo-dusk.
-#
-# Copyright (c) 2024-present EchoQuill
-#
-# Portions of this file are based on code by EchoQuill, licensed under the
-# GNU General Public License v3.0 (GPL-3.0).
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
 
 # Standard Library
 import asyncio
@@ -131,7 +120,9 @@ version = "2.4.6"
 
 app = Flask(__name__)
 website_logs = []
-config_updated = None
+config_updated = [None]
+bot_instances = []
+bot_loop = None
 settings_lock = threading.Lock()
 global_settings_lock = threading.Lock()
 
@@ -152,6 +143,52 @@ def check_password(req):
     pw = req.headers.get("password") or req.json.get("password") if req.is_json else req.headers.get("password")
     return pw == global_settings_dict["website"]["password"]
 
+
+# ── Toggle cog langsung ─────────────────────────────────────
+@app.route("/api/toggle_cog", methods=["POST"])
+def toggle_cog():
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        payload = request.get_json()
+        cog_name = payload["cog"]
+        action = payload["action"]  # "load" atau "unload"
+
+        if bot_loop is None or not bot_instances:
+            return jsonify({"status": "error", "message": "Bot not ready"}), 503
+
+        async def do_toggle():
+            for bot in bot_instances:
+                ext = f"cogs.{cog_name}"
+                if action == "unload":
+                    if ext in bot.extensions:
+                        for cog_key, cog_instance in bot.cogs.items():
+                            if cog_key.lower() == cog_name.lower():
+                                if hasattr(cog_instance, "stopped"):
+                                    cog_instance.stopped = True
+                                break
+                        await asyncio.sleep(0.2)
+                        await bot.unload_cog(ext)
+                elif action == "load":
+                    if ext not in bot.extensions:
+                        bot.refresh_commands_dict()
+                        if bot.commands_dict.get(cog_name, False):
+                            await bot.load_extension(ext)
+
+        future = asyncio.run_coroutine_threadsafe(do_toggle(), bot_loop)
+        future.result(timeout=10)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/debug", methods=["GET"])
+def debug():
+    return jsonify({
+        "bot_instances": len(bot_instances),
+        "bot_loop": str(bot_loop),
+        "cogs": [list(b.extensions.keys()) for b in bot_instances]
+    })
 
 # ── GET settings.json ────────────────────────────────────────
 @app.route("/api/settings", methods=["GET"])
@@ -185,6 +222,8 @@ def update_settings():
         ref[key_path[-1]] = new_value
 
         write_json("config/settings.json", data, settings_lock)
+        for bot in bot_instances:
+            bot.settings_dict = data
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -789,7 +828,7 @@ class MyClient(commands.Bot):
     @tasks.loop(seconds=5)
     async def config_update_checker(self):
         global config_updated
-        if config_updated is not None and (time.time() - config_updated < 6):
+        if config_updated[0] is not None and (time.time() - config_updated[0] < 6):
             await self.update_config()
             # config_updated = False
 
@@ -821,7 +860,7 @@ class MyClient(commands.Bot):
                     f"please update to: v{latest_version['version']} to continue using owo-dusk!", "#33245e"
                 )
 
-    async def start_cogs(self):
+    async def start_cogs(self, startup=False):
         files = os.listdir(resource_path("./cogs"))  # Get the list of files
         self.random.shuffle(files)
         self.refresh_commands_dict()
@@ -829,15 +868,17 @@ class MyClient(commands.Bot):
             if filename.endswith(".py"):
                 extension = f"cogs.{filename[:-3]}"
                 if extension in self.extensions:
-                    """skip if already loaded"""
-                    self.refresh_commands_dict()
-                    if not self.commands_dict[str(filename[:-3])]:
-                        await self.unload_cog(extension)
+                    if startup:
+                        """skip if already loaded during startup"""
+                        self.refresh_commands_dict()
+                        if not self.commands_dict[str(filename[:-3])]:
+                            await self.unload_cog(extension)
                     continue
                 try:
-                    await self.sleep_till(
-                        self.global_settings_dict["account"]["commandsStartDelay"]
-                    )
+                    if startup:
+                        await self.sleep_till(
+                            self.global_settings_dict["account"]["commandsStartDelay"]
+                        )
                     if self.commands_dict.get(str(filename[:-3]), False):
                         await self.load_extension(extension)
 
@@ -852,7 +893,7 @@ class MyClient(commands.Bot):
             )
             os._exit(0)
 
-    async def update_config(self):
+    async def update_config(self, startup=False):
         async with self.lock:
             custom_path = f"config/{self.user.id}.settings.json"
             default_config_path = "config/settings.json"
@@ -864,7 +905,7 @@ class MyClient(commands.Bot):
             with open(config_path, "r") as config_file:
                 self.settings_dict = json.load(config_file)
 
-            await self.start_cogs()
+            await self.start_cogs(startup=startup)
 
     """async def update_database(self, sql, params=None):
         async with aiosqlite.connect("utils/data/db.sqlite", timeout=5) as db:
@@ -1249,6 +1290,7 @@ class MyClient(commands.Bot):
             return
         try:
             async with self.lock:
+                # Remove dari checks
                 for index, command in enumerate(self.checks):
                     if cmd_data:
                         if command == cmd_data:
@@ -1256,6 +1298,16 @@ class MyClient(commands.Bot):
                     else:
                         if command.get("id", None) == id:
                             self.checks.pop(index)
+
+                # Remove dari PriorityQueue juga
+                if id:
+                    items = []
+                    while not self.queue.empty():
+                        item = await self.queue.get()
+                        if item[2].get("id") != id:
+                            items.append(item)
+                    for item in items:
+                        await self.queue.put(item)
         except Exception as e:
             await self.log(f"Error: {e}, during remove_queue", "#c25560")
 
@@ -1641,7 +1693,11 @@ class MyClient(commands.Bot):
         await self.fetch_net_earnings()
 
         # Start various tasks and updates
-        # self.config_update_checker.start()
+        self.config_update_checker.start()
+        global bot_instances, bot_loop
+        if self not in bot_instances:
+            bot_instances.append(self)
+        bot_loop = asyncio.get_event_loop()
         # disabled since unnecessory
         if self.token_len > 1:
             time_to_sleep = self.random_float(
@@ -1650,7 +1706,7 @@ class MyClient(commands.Bot):
             await self.log(f"{self.username} sleeping {time_to_sleep}s before starting")
             await asyncio.sleep(time_to_sleep)
 
-        await self.update_config()
+        await self.update_config(startup=True)
 
         if self.global_settings_dict["offlineStatus"]:
             self.presence.start()
