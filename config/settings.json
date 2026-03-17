@@ -5,8 +5,8 @@
         "hunt": {
             "enabled": true,
             "cooldown": [
-                15,
-                17
+                20,
+                25
             ],
             "useShortForm": true
         },
@@ -21,7 +21,7 @@
             "notifyStreakLoss": false
         },
         "sell": {
-            "enabled": false,
+            "enabled": true,
             "cooldown": [
                 410,
                 500
@@ -32,8 +32,7 @@
                 "r",
                 "e",
                 "m",
-                "l",
-                "g"
+                "l"
             ]
         },
         "sac": {
@@ -53,12 +52,14 @@
             ]
         },
         "pray": {
-            "enabled": true,
+            "enabled": false,
             "cooldown": [
                 310,
                 400
             ],
-            "userid": [],
+            "userid": [
+                1424851715525443600
+            ],
             "pingUser": false,
             "customChannel": {
                 "enabled": false,
@@ -150,7 +151,7 @@
         },
         "coinflip": {
             "enabled": false,
-            "startValue": 200,
+            "startValue": 500,
             "multiplierOnLose": 2,
             "cooldown": [
                 16,

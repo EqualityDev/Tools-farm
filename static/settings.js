@@ -245,39 +245,187 @@ function renderCommands() {
     const container = document.getElementById("commands-container");
     container.innerHTML = "";
     const cmds = settingsData.commands;
-
     Object.entries(cmds).forEach(([name, cfg]) => {
         const card = document.createElement("div");
         card.className = "cmd-card";
-
-        // Cooldown row (jika ada)
-        const cdRow = cfg.cooldown ? `
-            <div class="cmd-extra-row">
-                <span class="setting-desc">Cooldown (detik)</span>
-                <div class="range-inputs">
-                    <input type="number" class="num-input" value="${cfg.cooldown[0]}" id="cd-min-${name}" min="1">
-                    <span>–</span>
-                    <input type="number" class="num-input" value="${cfg.cooldown[1]}" id="cd-max-${name}" min="1">
-                    <button class="btn-save" onclick="saveCooldown('${name}')">Save</button>
-                </div>
-            </div>` : "";
-
-        card.innerHTML = `
-            <div class="setting-row" style="border-bottom: ${cfg.cooldown ? '1px solid rgba(130,100,230,0.12)' : 'none'}; padding-bottom: 10px;">
-                <div class="setting-info">
-                    <span class="setting-label">${name}</span>
-                    <span class="setting-desc">${getCommandDesc(name)}</span>
-                </div>
-                <label class="toggle">
-                    <input type="checkbox" ${cfg.enabled ? "checked" : ""}
-                        onchange="patchSettings(['commands','${name}','enabled'], this.checked)">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            ${cdRow}
-        `;
+        card.innerHTML = buildCommandCard(name, cfg);
         container.appendChild(card);
     });
+}
+
+function buildCommandCard(name, cfg) {
+    const desc = getCommandDesc(name);
+    const hasBorder = hasExtraFields(name, cfg);
+
+    let html = `
+        <div class="setting-row" style="border-bottom:${hasBorder ? '1px solid rgba(130,100,230,0.12)' : 'none'}; padding-bottom:10px;">
+            <div class="setting-info">
+                <span class="setting-label">${name}</span>
+                <span class="setting-desc">${desc}</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" ${cfg.enabled ? "checked" : ""}
+                    onchange="patchSettings(['commands','${name}','enabled'], this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+    `;
+
+    // Cooldown
+    if (cfg.cooldown) {
+        html += `
+        <div class="cmd-extra-row">
+            <span class="setting-desc">Cooldown (detik)</span>
+            <div class="range-inputs">
+                <input type="number" class="num-input" value="${cfg.cooldown[0]}" id="cd-min-${name}" min="1">
+                <span>–</span>
+                <input type="number" class="num-input" value="${cfg.cooldown[1]}" id="cd-max-${name}" min="1">
+                <button class="btn-save" onclick="saveCooldown('${name}')">Save</button>
+            </div>
+        </div>`;
+    }
+
+    // Rarity (sell, sac)
+    if (cfg.rarity) {
+        const rarities = ["c","u","r","e","m","l","g"];
+        const rarityLabels = {"c":"Common","u":"Uncommon","r":"Rare","e":"Epic","m":"Mythical","l":"Legendary","g":"Gem"};
+        html += `
+        <div class="cmd-extra-row" style="flex-wrap:wrap; gap:6px;">
+            <span class="setting-desc" style="width:100%">Rarity</span>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
+                ${rarities.map(r => `
+                <label style="display:flex; align-items:center; gap:4px; color:#ffffff; font-size:0.82rem; cursor:pointer;">
+                    <input type="checkbox" ${cfg.rarity.includes(r) ? "checked" : ""}
+                        onchange="saveRarity('${name}', '${r}', this.checked)"
+                        style="cursor:pointer;">
+                    ${rarityLabels[r]}
+                </label>`).join("")}
+            </div>
+        </div>`;
+    }
+
+    // Userid (cookie, pray, curse)
+    if (cfg.hasOwnProperty("userid") && !Array.isArray(cfg.userid)) {
+        html += `
+        <div class="cmd-extra-row">
+            <span class="setting-desc">User ID Target</span>
+            <div class="input-group">
+                <input type="number" class="num-input" style="width:160px;" id="userid-${name}" value="${cfg.userid || ""}">
+                <button class="btn-save" onclick="saveUserid('${name}')">Save</button>
+            </div>
+        </div>`;
+    }
+
+    // Userid array (pray, curse)
+    if (Array.isArray(cfg.userid)) {
+        html += `
+        <div class="cmd-extra-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+            <span class="setting-desc">User IDs</span>
+            <div id="userid-list-${name}" style="display:flex; flex-wrap:wrap; gap:6px;">
+                ${cfg.userid.map((uid, i) => `
+                <div class="channel-tag">
+                    ${uid}
+                    <button onclick="removeUserId('${name}', ${i})">✕</button>
+                </div>`).join("")}
+            </div>
+            <div class="add-channel-row">
+                <input type="number" class="num-input" style="width:160px;" placeholder="User ID" id="new-uid-${name}">
+                <button class="btn-add" onclick="addUserId('${name}')">＋ Add</button>
+            </div>
+        </div>`;
+    }
+
+    // Ping user toggle (pray, curse, cookie)
+    if (cfg.hasOwnProperty("pingUser")) {
+        html += `
+        <div class="cmd-extra-row">
+            <span class="setting-desc">Ping User</span>
+            <label class="toggle">
+                <input type="checkbox" ${cfg.pingUser ? "checked" : ""}
+                    onchange="patchSettings(['commands','${name}','pingUser'], this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>`;
+    }
+
+    // Custom channel (pray, curse)
+    if (cfg.customChannel) {
+        html += `
+        <div class="cmd-extra-row">
+            <span class="setting-desc">Custom Channel</span>
+            <label class="toggle">
+                <input type="checkbox" ${cfg.customChannel.enabled ? "checked" : ""}
+                    onchange="patchSettings(['commands','${name}','customChannel','enabled'], this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="cmd-extra-row">
+            <span class="setting-desc">Custom Channel ID</span>
+            <div class="input-group">
+                <input type="number" class="num-input" style="width:160px;" id="customch-${name}" value="${cfg.customChannel.channelId || 0}">
+                <button class="btn-save" onclick="saveCustomChannel('${name}')">Save</button>
+            </div>
+        </div>`;
+    }
+
+    // Shop items
+    if (name === "shop" && cfg.itemsToBuy) {
+        html += `
+        <div class="cmd-extra-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+            <span class="setting-desc">Items to Buy (Ring ID 1-7)</span>
+            <div id="shop-items-list" style="display:flex; flex-wrap:wrap; gap:6px;">
+                ${cfg.itemsToBuy.map((item, i) => `
+                <div class="channel-tag">
+                    Ring ${item}
+                    <button onclick="removeShopItem(${i})">✕</button>
+                </div>`).join("")}
+            </div>
+            <div class="add-channel-row">
+                <input type="number" class="num-input" style="width:80px;" placeholder="1-7" id="new-shop-item" min="1" max="7">
+                <button class="btn-add" onclick="addShopItem()">＋ Add</button>
+            </div>
+        </div>`;
+    }
+
+    // autoHuntBot extra fields
+    if (name === "autoHuntBot") {
+        html += `
+        <div class="cmd-extra-row">
+            <span class="setting-desc">Cash to Spend</span>
+            <div class="input-group">
+                <input type="number" class="num-input" style="width:110px;" id="huntbot-cash" value="${cfg.cashToSpend || 10000}" min="0">
+                <button class="btn-save" onclick="patchSettings(['commands','autoHuntBot','cashToSpend'], parseInt(document.getElementById('huntbot-cash').value))">Save</button>
+            </div>
+        </div>
+        <div class="cmd-extra-row">
+            <span class="setting-desc">Upgrader</span>
+            <label class="toggle">
+                <input type="checkbox" ${cfg.upgrader?.enabled ? "checked" : ""}
+                    onchange="patchSettings(['commands','autoHuntBot','upgrader','enabled'], this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>`;
+    }
+
+    // lottery amount
+    if (name === "lottery" && cfg.hasOwnProperty("amount")) {
+        html += `
+        <div class="cmd-extra-row">
+            <span class="setting-desc">Amount</span>
+            <div class="input-group">
+                <input type="number" class="num-input" style="width:100px;" id="lottery-amount" value="${cfg.amount}" min="1">
+                <button class="btn-save" onclick="patchSettings(['commands','lottery','amount'], parseInt(document.getElementById('lottery-amount').value))">Save</button>
+            </div>
+        </div>`;
+    }
+
+    return html;
+}
+
+function hasExtraFields(name, cfg) {
+    return cfg.cooldown || cfg.rarity || cfg.hasOwnProperty("userid") ||
+           cfg.hasOwnProperty("pingUser") || cfg.customChannel ||
+           name === "shop" || name === "autoHuntBot" || name === "lottery";
 }
 
 async function saveCooldown(name) {
@@ -287,6 +435,75 @@ async function saveCooldown(name) {
         return showToast("Cooldown tidak valid (min harus < max)", "error");
     }
     await patchSettings(["commands", name, "cooldown"], [min, max]);
+}
+
+async function saveRarity(name, rarity, checked) {
+    const current = settingsData.commands[name].rarity || [];
+    let updated;
+    if (checked) {
+        if (!current.includes(rarity)) updated = [...current, rarity];
+        else updated = current;
+    } else {
+        updated = current.filter(r => r !== rarity);
+    }
+    settingsData.commands[name].rarity = updated;
+    await patchSettings(["commands", name, "rarity"], updated);
+}
+
+async function saveUserid(name) {
+    const val = parseInt(document.getElementById(`userid-${name}`).value);
+    if (isNaN(val)) return showToast("User ID tidak valid", "error");
+    await patchSettings(["commands", name, "userid"], val);
+}
+
+async function addUserId(name) {
+    const input = document.getElementById(`new-uid-${name}`);
+    const val = parseInt(input.value);
+    if (!val) return showToast("User ID tidak valid", "error");
+    const current = settingsData.commands[name].userid || [];
+    if (!current.includes(val)) {
+        const updated = [...current, val];
+        settingsData.commands[name].userid = updated;
+        await patchSettings(["commands", name, "userid"], updated);
+        renderCommands();
+    }
+    input.value = "";
+}
+
+async function removeUserId(name, idx) {
+    const current = settingsData.commands[name].userid || [];
+    current.splice(idx, 1);
+    settingsData.commands[name].userid = current;
+    await patchSettings(["commands", name, "userid"], current);
+    renderCommands();
+}
+
+async function saveCustomChannel(name) {
+    const val = parseInt(document.getElementById(`customch-${name}`).value);
+    if (isNaN(val)) return showToast("Channel ID tidak valid", "error");
+    await patchSettings(["commands", name, "customChannel", "channelId"], val);
+}
+
+async function addShopItem() {
+    const input = document.getElementById("new-shop-item");
+    const val = parseInt(input.value);
+    if (!val || val < 1 || val > 7) return showToast("Item ID harus 1-7", "error");
+    const current = settingsData.commands.shop.itemsToBuy || [];
+    if (!current.includes(val)) {
+        const updated = [...current, val];
+        settingsData.commands.shop.itemsToBuy = updated;
+        await patchSettings(["commands", "shop", "itemsToBuy"], updated);
+        renderCommands();
+    }
+    input.value = "";
+}
+
+async function removeShopItem(idx) {
+    const current = settingsData.commands.shop.itemsToBuy || [];
+    current.splice(idx, 1);
+    settingsData.commands.shop.itemsToBuy = current;
+    await patchSettings(["commands", "shop", "itemsToBuy"], current);
+    renderCommands();
 }
 
 function renderGamble() {
