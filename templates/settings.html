@@ -1,46 +1,30 @@
-<!--
-This file is part of owo-dusk.
-Copyright (c) 2024-present EchoQuill
-Licensed under GNU GPL v3.0
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OwO-Dusk - Settings</title>
+    <title>OwO Tools — Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='settings.css') }}">
 </head>
 <body>
+
     <header class="nav-area">
-        <nav>
-            <div class="nav-wrapper">
-                <div>
-                    <img class="icon" src="{{ url_for('static', filename='imgs/logo.png') }}" alt="OwO-Dusk Logo">
-                </div>
-                <div>
-                    <p><b>OwO-Dusk v{{ version }}</b></p>
-                </div>
-                <div class="nav-links">
-                    <a href="/" class="nav-link">Dashboard</a>
-                    <a href="/settings" class="nav-link active">Settings</a>
-                </div>
-                <div class="support">
-                    <a href="https://github.com/EchoQuill" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ url_for('static', filename='imgs/github.png') }}" alt="GitHub" class="icon">
-                    </a>
-                </div>
+        <div class="nav-wrapper">
+            <div class="nav-brand">OwO Tools</div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Dashboard</a>
+                <a href="/settings" class="nav-link active">Settings</a>
             </div>
-        </nav>
+            <div class="nav-version">v{{ version }}</div>
+        </div>
     </header>
 
     <div class="main-content-container">
 
-        <!-- Toast notification -->
+        <!-- Toast -->
         <div id="toast" class="toast hidden"></div>
 
-        <!-- TAB NAV -->
+        <!-- Tab Bar -->
         <div class="tab-bar">
             <button class="tab-btn active" data-tab="channels">📡 Channels & Webhook</button>
             <button class="tab-btn" data-tab="commands">⚔️ Commands</button>
@@ -48,21 +32,18 @@ Licensed under GNU GPL v3.0
             <button class="tab-btn" data-tab="console">📋 Console Logs</button>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════
-             TAB 1: CHANNELS & WEBHOOK
-        ════════════════════════════════════════════════════ -->
+        <!-- Tab 1: Channels & Webhook -->
         <div id="tab-channels" class="tab-content active">
 
-            <!-- Webhook Section -->
             <div class="section-area" style="height:auto;">
-                <h2>🔗 Webhook</h2>
+                <h2>⚙ Webhook</h2>
                 <div class="setting-row">
                     <div class="setting-info">
                         <span class="setting-label">Enable Webhook</span>
-                        <span class="setting-desc">Send logs to a Discord webhook</span>
+                        <span class="setting-desc">Kirim log ke Discord webhook</span>
                     </div>
                     <label class="toggle">
-                        <input type="checkbox" id="webhook-enabled" onchange="patchGlobal(['webhook','enabled'], this.checked)">
+                        <input type="checkbox" id="webhook-enabled">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -82,26 +63,24 @@ Licensed under GNU GPL v3.0
                         <span class="setting-desc">Verbose webhook logging</span>
                     </div>
                     <label class="toggle">
-                        <input type="checkbox" id="webhook-useless" onchange="patchGlobal(['webhook','webhookUselessLog'], this.checked)">
+                        <input type="checkbox" id="webhook-useless">
                         <span class="slider"></span>
                     </label>
                 </div>
             </div>
 
-            <!-- Channel Switcher Section -->
-            <div class="section-area" style="height:auto; margin-top: 16px;">
+            <div class="section-area" style="height:auto; margin-top:14px;">
                 <div class="section-header-row">
-                    <h2>📡 Channel Switcher</h2>
+                    <h2>⚙ Channel Switcher</h2>
                     <label class="toggle">
-                        <input type="checkbox" id="channelSwitcher-enabled" onchange="patchGlobal(['channelSwitcher','enabled'], this.checked)">
+                        <input type="checkbox" id="channelSwitcher-enabled">
                         <span class="slider"></span>
                     </label>
                 </div>
-
                 <div class="setting-row">
                     <div class="setting-info">
-                        <span class="setting-label">Switch Interval (seconds)</span>
-                        <span class="setting-desc">Min / Max seconds between channel switches</span>
+                        <span class="setting-label">Switch Interval (detik)</span>
+                        <span class="setting-desc">Min / Max detik antar channel switch</span>
                     </div>
                     <div class="range-inputs">
                         <input type="number" id="cs-interval-min" class="num-input" placeholder="Min">
@@ -110,8 +89,7 @@ Licensed under GNU GPL v3.0
                         <button class="btn-save" onclick="saveCSInterval()">Save</button>
                     </div>
                 </div>
-
-                <h3 class="sub-heading">Users & Channels</h3>
+                <div class="sub-heading">Users & Channels</div>
                 <div id="users-container"></div>
                 <button class="btn-add" onclick="addUser()">＋ Add User</button>
                 <div style="margin-top:12px;">
@@ -120,48 +98,40 @@ Licensed under GNU GPL v3.0
             </div>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════
-             TAB 2: COMMANDS (settings.json)
-        ════════════════════════════════════════════════════ -->
+        <!-- Tab 2: Commands -->
         <div id="tab-commands" class="tab-content hidden">
             <div class="section-area" style="height:auto;">
                 <h2>⚔️ Commands</h2>
-                <p class="hint">Toggle commands ON/OFF. Changes save instantly.</p>
+                <p class="hint">Toggle ON/OFF. Perubahan tersimpan otomatis.</p>
                 <div id="commands-container"></div>
             </div>
-
-            <div class="section-area" style="height:auto; margin-top:16px;">
+            <div class="section-area" style="height:auto; margin-top:14px;">
                 <h2>🎰 Gamble</h2>
                 <div id="gamble-container"></div>
             </div>
-
-            <div class="section-area" style="height:auto; margin-top:16px;">
+            <div class="section-area" style="height:auto; margin-top:14px;">
                 <h2>🔧 Other Features</h2>
                 <div id="other-container"></div>
             </div>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════
-             TAB 3: GLOBAL SETTINGS
-        ════════════════════════════════════════════════════ -->
+        <!-- Tab 3: Global Settings -->
         <div id="tab-global" class="tab-content hidden">
             <div class="section-area" style="height:auto;">
                 <h2>🌐 Global Toggles</h2>
                 <div id="global-toggles-container"></div>
             </div>
-            <div class="section-area" style="height:auto; margin-top:16px;">
+            <div class="section-area" style="height:auto; margin-top:14px;">
                 <h2>🔔 Captcha Notifications</h2>
                 <div id="captcha-container"></div>
             </div>
-            <div class="section-area" style="height:auto; margin-top:16px;">
+            <div class="section-area" style="height:auto; margin-top:14px;">
                 <h2>🔋 Battery Check</h2>
                 <div id="battery-container"></div>
             </div>
         </div>
 
-        <!-- ═══════════════════════════════════════════════════
-             TAB 4: CONSOLE LOGS
-        ════════════════════════════════════════════════════ -->
+        <!-- Tab 4: Console Logs -->
         <div id="tab-console" class="tab-content hidden">
             <div class="section-area" style="height:auto; min-height:400px;">
                 <h2>📋 Activity Console</h2>
