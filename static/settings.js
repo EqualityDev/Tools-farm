@@ -1,5 +1,5 @@
 /*
- * settings.js — OwO-Dusk Settings Dashboard
+ * settings.js — ToolsFarmEquality Settings Dashboard
  * Handles tab switching, data loading, and API calls
  */
 
@@ -110,6 +110,12 @@ function showToast(msg, type = "success") {
 // ── Patch helpers ────────────────────────────────────────────
 async function patchSettings(path, value) {
     await apiPatch("/api/settings", { path, value });
+    // Update settingsData in memory
+    let ref = settingsData;
+    for (let i = 0; i < path.length - 1; i++) {
+        ref = ref[path[i]];
+    }
+    ref[path[path.length - 1]] = value;
     // Jika toggle enabled, langsung load/unload cog
     if (path[path.length - 1] === "enabled") {
         await toggleCog(path.slice(0, -1), value);
@@ -118,6 +124,12 @@ async function patchSettings(path, value) {
 
 async function patchGlobal(path, value) {
     await apiPatch("/api/global_settings", { path, value });
+    // Update globalData in memory
+    let ref = globalData;
+    for (let i = 0; i < path.length - 1; i++) {
+        ref = ref[path[i]];
+    }
+    ref[path[path.length - 1]] = value;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -643,22 +655,25 @@ function renderGlobalToggles() {
         { label: "Stop if Captcha Fails", desc: "Stop bot if captcha cannot be solved", path: ["captcha", "stopCodeIfFailedToSolve"], val: g.captcha.stopCodeIfFailedToSolve },
     ];
 
-    toggles.forEach(({ label, desc, path, val }) => {
-        const row = document.createElement("div");
-        row.className = "setting-row";
-        row.innerHTML = `
-            <div class="setting-info">
-                <span class="setting-label">${label}</span>
-                <span class="setting-desc">${desc}</span>
-            </div>
-            <label class="toggle">
-                <input type="checkbox" ${val ? "checked" : ""}
-                    onchange="patchGlobal(${JSON.stringify(path)}, this.checked)">
-                <span class="slider"></span>
-            </label>
-        `;
-        container.appendChild(row);
-    });
+    toggles.forEach(({ label, desc, path, val }, idx) => {
+            const uid = "gt_" + idx;
+            const row = document.createElement("div");
+            row.className = "setting-row";
+            row.innerHTML = `
+                <div class="setting-info">
+                    <span class="setting-label">${label}</span>
+                    <span class="setting-desc">${desc}</span>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
+                    <span class="slider"></span>
+                </label>
+            `;
+            container.appendChild(row);
+            document.getElementById(uid).addEventListener("change", function() {
+                patchGlobal(path, this.checked);
+            });
+        });
 }
 
 function renderCaptcha() {
@@ -674,22 +689,26 @@ function renderCaptcha() {
         { label: "Recurring Alerts", desc: "Repeat alert multiple times", path: ["captcha","notifications","reccur","enabled"], val: cap.notifications.reccur.enabled },
     ];
 
-    toggles.forEach(({ label, desc, path, val }) => {
-        const row = document.createElement("div");
-        row.className = "setting-row";
-        row.innerHTML = `
-            <div class="setting-info">
-                <span class="setting-label">${label}</span>
-                <span class="setting-desc">${desc}</span>
-            </div>
-            <label class="toggle">
-                <input type="checkbox" ${val ? "checked" : ""}
-                    onchange="patchGlobal(${JSON.stringify(path)}, this.checked)">
-                <span class="slider"></span>
-            </label>
-        `;
-        container.appendChild(row);
-    });
+    toggles.forEach(({ label, desc, path, val }, idx) => {
+            const uid = "ct_" + idx;
+            const row = document.createElement("div");
+            row.className = "setting-row";
+            row.innerHTML = `
+                <div class="setting-info">
+                    <span class="setting-label">${label}</span>
+                    <span class="setting-desc">${desc}</span>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
+                    <span class="slider"></span>
+                </label>
+            `;
+            container.appendChild(row);
+            document.getElementById(uid).addEventListener("change", function() {
+                patchGlobal(path, this.checked);
+            });
+        });
+
 }
 
 function renderBattery() {

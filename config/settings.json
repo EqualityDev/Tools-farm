@@ -1,5 +1,5 @@
 {
-    "setprefix": "owo ",
+    "setprefix": "w",
     "useSlashCommands": false,
     "commands": {
         "hunt": {
@@ -13,8 +13,8 @@
         "battle": {
             "enabled": true,
             "cooldown": [
-                15,
-                17
+                21,
+                26
             ],
             "useShortForm": true,
             "showStreakInConsole": false,
@@ -31,8 +31,7 @@
                 "u",
                 "r",
                 "e",
-                "m",
-                "l"
+                "m"
             ]
         },
         "sac": {
@@ -52,14 +51,12 @@
             ]
         },
         "pray": {
-            "enabled": false,
+            "enabled": true,
             "cooldown": [
                 310,
                 400
             ],
-            "userid": [
-                1424851715525443600
-            ],
+            "userid": [],
             "pingUser": false,
             "customChannel": {
                 "enabled": false,
@@ -158,7 +155,8 @@
                 18
             ],
             "options": [
-                "t"
+                "t",
+                "h"
             ]
         },
         "slots": {
@@ -181,7 +179,7 @@
         }
     },
     "bossBattle": {
-        "enabled": false,
+        "enabled": true,
         "joinChancePercent": 80,
         "joinAllGuilds": {
             "enabled": true,
@@ -202,7 +200,7 @@
         "messageRangeToCheck": 6
     },
     "sleep": {
-        "enabled": false,
+        "enabled": true,
         "frequencyPercentage": 50,
         "checkTime": [
             10,
