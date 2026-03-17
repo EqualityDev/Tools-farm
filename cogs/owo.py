@@ -40,6 +40,9 @@ class Owo(commands.Cog):
                 self.bot.settings_dict["commands"]["owo"]["cooldown"]
             )
             self.owo_ongoing = False
+        if self.stopped or not self.bot.settings_dict["commands"]["owo"]["enabled"]:
+            await self.bot.log("owo dimatikan setelah sleep, berhenti.", "#4a270c")
+            return
         await self.bot.put_queue(cmd, quick=True)
 
     """gets executed when the cog is first loaded"""

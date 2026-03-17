@@ -610,7 +610,8 @@ function renderOther() {
         { label: "Custom Commands", desc: "Enable custom command list", path: ["customCommands", "enabled"], val: s.customCommands.enabled },
     ];
 
-    simpleToggles.forEach(({ label, desc, path, val }) => {
+    simpleToggles.forEach(({ label, desc, path, val }, idx) => {
+        const uid = "other_" + idx;
         const row = document.createElement("div");
         row.className = "setting-row";
         row.innerHTML = `
@@ -619,12 +620,14 @@ function renderOther() {
                 <span class="setting-desc">${desc}</span>
             </div>
             <label class="toggle">
-                <input type="checkbox" ${val ? "checked" : ""}
-                    onchange="patchSettings(${JSON.stringify(path)}, this.checked)">
+                <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
         `;
         container.appendChild(row);
+        document.getElementById(uid).addEventListener("change", function() {
+            patchSettings(path, this.checked);
+        });
     });
 }
 
