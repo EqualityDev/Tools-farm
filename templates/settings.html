@@ -25,11 +25,13 @@
         <div id="toast" class="toast hidden"></div>
 
         <!-- Tab Bar -->
-        <div class="tab-bar">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px;">
+            <div class="tab-bar">
             <button class="tab-btn active" data-tab="channels">📡 Channels & Webhook</button>
             <button class="tab-btn" data-tab="commands">⚔️ Commands</button>
             <button class="tab-btn" data-tab="global">🌐 Global Settings</button>
             <button class="tab-btn" data-tab="console">📋 Console Logs</button>
+            <button onclick="restartBot()" class="btn-danger" style="padding:7px 14px; font-size:0.85rem; font-weight:600; letter-spacing:1px;">⚙ Restart</button>
         </div>
 
         <!-- Tab 1: Channels & Webhook -->

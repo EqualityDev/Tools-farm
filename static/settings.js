@@ -97,6 +97,19 @@ async function toggleCog(path, value) {
     });
 }
 
+async function restartBot() {
+    const res = await fetch('/api/restart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', password }
+    });
+    const json = await res.json();
+    if (json.status === 'success') {
+        showToast('🔄 Bot sedang restart...', 'success');
+    } else {
+        showToast('❌ Gagal restart: ' + json.message, 'error');
+    }
+}
+
 // ── Toast ───────────────────────────────────────────────────
 let toastTimeout;
 function showToast(msg, type = "success") {

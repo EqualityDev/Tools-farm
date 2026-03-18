@@ -190,6 +190,22 @@ def debug():
         "cogs": [list(b.extensions.keys()) for b in bot_instances]
     })
 
+@app.route("/api/restart", methods=["POST"])
+def restart_bot():
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        import threading
+        def do_restart():
+            import time, os, sys
+            time.sleep(1)
+            os.execv(sys.executable, [sys.executable] + sys.argv)
+        threading.Thread(target=do_restart, daemon=True).start()
+        return jsonify({"status": "success", "message": "Restarting..."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 # ── GET settings.json ────────────────────────────────────────
 @app.route("/api/settings", methods=["GET"])
 def get_settings():
