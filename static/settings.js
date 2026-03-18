@@ -98,25 +98,6 @@ async function toggleCog(path, value) {
     });
 }
 
-        });
-    } catch (e) {
-        // Server mati - normal
-    }
-    showToast('🔄 Bot sedang restart...', 'success');
-    setTimeout(async function waitForServer() {
-        try {
-            const res = await fetch('/api/console', { headers: { password } });
-            if (res.ok) {
-                window.location.href = window.location.href.split("?")[0] + "?t=" + Date.now();
-            } else {
-                setTimeout(waitForServer, 1000);
-            }
-        } catch (e) {
-            setTimeout(waitForServer, 1000);
-        }
-    }, 5000);
-}
-
 // ── Toast ───────────────────────────────────────────────────
 let toastTimeout;
 function showToast(msg, type = "success") {
