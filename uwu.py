@@ -418,10 +418,7 @@ def get_channels():
         return jsonify({
             "status": "success",
             "channelSwitcher": data.get("channelSwitcher", {}),
-            "webhook": {
-                "enabled": data["webhook"]["enabled"],
-                "webhookUrl": data["webhook"]["webhookUrl"]
-            }
+            "webhook": data.get("webhook", {})
         })
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
