@@ -41,10 +41,10 @@
 notify_when_attempting_to_solve = true
 
 [image_solver]
-enabled = true # Change this to true to enable
+enabled = false # Change this to true to enable
 
 [hcaptcha_solver]
-enabled = true # Change this to true to enable
+enabled = false # Change this to true to enable
 
 # Enter your API key from https://yescaptcha.com/i/MNaKrh
 # Leave empty if not using hCaptcha solver

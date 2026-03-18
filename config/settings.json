@@ -274,14 +274,14 @@
                 "rare": true,
                 "epic": true,
                 "mythical": true,
-                "legendary": false,
-                "fabled": false
+                "legendary": true,
+                "fabled": true
             },
             "gemsToUse": {
                 "huntGem": true,
                 "empoweredGem": true,
                 "luckyGem": true,
-                "specialGem": false
+                "specialGem": true
             },
             "disable_hunts_if_no_gems": false
         },

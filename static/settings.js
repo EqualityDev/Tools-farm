@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         apiGet("/api/captcha_settings")
     ]);
 
-    if (s) { settingsData = s.data; renderCommands(); renderGamble(); renderOther(); }
+    if (s) { settingsData = s.data; renderCommands(); renderGamble(); renderOther(); renderGems(); }
     if (g) { globalData = g.data; renderGlobalToggles(); renderCaptcha(); renderBattery(); }
     if (c) { channelData = c; renderChannels(); }
     if (cs) { captchaSettings = cs.data; renderCaptchaSolver(); }
@@ -876,6 +876,131 @@ async function saveCaptchaNum(uid, path) {
     const val = parseInt(document.getElementById(uid).value);
     if (isNaN(val) || val < 1) return showToast("Nilai tidak valid", "error");
     await patchCaptcha(path, val);
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// GEM SETTINGS
+// ═══════════════════════════════════════════════════════════
+function renderGems() {
+    const container = document.getElementById("gems-container");
+    if (!container || !settingsData) return;
+    container.innerHTML = "";
+
+    const gems = settingsData.autoUse.gems;
+    const tiers = ["common","uncommon","rare","epic","mythical","legendary","fabled"];
+    const gemTypes = [
+        { key: "huntGem", label: "Hunt Gem" },
+        { key: "empoweredGem", label: "Empowered Gem" },
+        { key: "luckyGem", label: "Lucky Gem" },
+        { key: "specialGem", label: "Special Gem" }
+    ];
+
+    // Enable gems toggle
+    const enableRow = document.createElement("div");
+    enableRow.className = "cmd-card";
+    const enableUid = "gems_enabled";
+    enableRow.innerHTML = `
+        <div class="setting-row" style="border-bottom:none; padding-bottom:0;">
+            <div class="setting-info">
+                <span class="setting-label">Auto Use Gems</span>
+                <span class="setting-desc">Aktifkan penggunaan gem otomatis</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="${enableUid}" ${gems.enabled ? "checked" : ""}>
+                <span class="slider"></span>
+            </label>
+        </div>
+    `;
+    container.appendChild(enableRow);
+    document.getElementById(enableUid).addEventListener("change", function() {
+        patchSettings(["autoUse","gems","enabled"], this.checked);
+    });
+
+    // Options
+    const optCard = document.createElement("div");
+    optCard.className = "cmd-card";
+    const lowestUid = "gems_lowest";
+    const disableUid = "gems_disable";
+    optCard.innerHTML = `
+        <div class="setting-row" style="border-bottom:1px solid rgba(181,101,29,0.15); padding-bottom:10px;">
+            <div class="setting-info">
+                <span class="setting-label">Lowest to Highest</span>
+                <span class="setting-desc">Pakai gem dari tier terendah dulu</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="${lowestUid}" ${gems.order.lowestToHighest ? "checked" : ""}>
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="setting-row" style="border-bottom:none; padding-bottom:0;">
+            <div class="setting-info">
+                <span class="setting-label">Disable Hunt if No Gems</span>
+                <span class="setting-desc">Matikan hunt jika tidak ada gem tersedia</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="${disableUid}" ${gems.disable_hunts_if_no_gems ? "checked" : ""}>
+                <span class="slider"></span>
+            </label>
+        </div>
+    `;
+    container.appendChild(optCard);
+    document.getElementById(lowestUid).addEventListener("change", function() {
+        patchSettings(["autoUse","gems","order","lowestToHighest"], this.checked);
+    });
+    document.getElementById(disableUid).addEventListener("change", function() {
+        patchSettings(["autoUse","gems","disable_hunts_if_no_gems"], this.checked);
+    });
+
+    // Tiers
+    const tierCard = document.createElement("div");
+    tierCard.className = "cmd-card";
+    tierCard.innerHTML = `<div class="sub-heading" style="margin-top:0;">Tiers</div>`;
+    tiers.forEach((tier, idx) => {
+        const uid = "tier_" + tier;
+        const row = document.createElement("div");
+        row.className = "setting-row";
+        row.style.borderBottom = idx < tiers.length-1 ? "1px solid rgba(181,101,29,0.12)" : "none";
+        row.innerHTML = `
+            <div class="setting-info">
+                <span class="setting-label">${tier.charAt(0).toUpperCase() + tier.slice(1)}</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="${uid}" ${gems.tiers[tier] ? "checked" : ""}>
+                <span class="slider"></span>
+            </label>
+        `;
+        tierCard.appendChild(row);
+        container.appendChild(tierCard);
+        document.getElementById(uid)?.addEventListener("change", function() {
+            patchSettings(["autoUse","gems","tiers",tier], this.checked);
+        });
+    });
+
+    // Gem Types
+    const typeCard = document.createElement("div");
+    typeCard.className = "cmd-card";
+    typeCard.innerHTML = `<div class="sub-heading" style="margin-top:0;">Jenis Gem</div>`;
+    gemTypes.forEach(({ key, label }, idx) => {
+        const uid = "gemtype_" + key;
+        const row = document.createElement("div");
+        row.className = "setting-row";
+        row.style.borderBottom = idx < gemTypes.length-1 ? "1px solid rgba(181,101,29,0.12)" : "none";
+        row.innerHTML = `
+            <div class="setting-info">
+                <span class="setting-label">${label}</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="${uid}" ${gems.gemsToUse[key] ? "checked" : ""}>
+                <span class="slider"></span>
+            </label>
+        `;
+        typeCard.appendChild(row);
+        container.appendChild(typeCard);
+        document.getElementById(uid)?.addEventListener("change", function() {
+            patchSettings(["autoUse","gems","gemsToUse",key], this.checked);
+        });
+    });
 }
 
 // ═══════════════════════════════════════════════════════════
