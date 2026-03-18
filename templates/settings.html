@@ -40,6 +40,7 @@
             <button class="tab-btn" data-tab="commands">⚔️ Commands</button>
             <button class="tab-btn" data-tab="global">🌐 Global Settings</button>
             <button class="tab-btn" data-tab="console">📋 Console Logs</button>
+            <button class="tab-btn" data-tab="tokens">🔑 Tokens</button>
             <button onclick="restartBot()" class="btn-danger" style="padding:7px 14px; font-size:0.85rem; font-weight:600; letter-spacing:1px;">⚙ Restart</button>
         </div>
 
@@ -149,6 +150,35 @@
             <div class="section-area" style="height:auto; margin-top:14px;">
                 <h2>🤖 Captcha Solver</h2>
                 <div id="captcha-solver-container"></div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Tokens -->
+        <div id="tab-tokens" class="tab-content hidden">
+            <div class="section-area" style="height:auto;">
+                <h2>🔑 Token Management</h2>
+                <p class="hint">⚠️ Token bersifat sensitif. Perubahan berlaku setelah bot restart.</p>
+                <div id="tokens-container"></div>
+                <div class="section-area" style="height:auto; margin-top:14px; border-style:dashed;">
+                    <h2>➕ Tambah Token</h2>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-label">Token Discord</span>
+                            <span class="setting-desc">Token akun Discord</span>
+                        </div>
+                        <input type="text" class="text-input" id="new-token" placeholder="Token Discord...">
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-label">Channel ID</span>
+                            <span class="setting-desc">ID channel untuk bot</span>
+                        </div>
+                        <input type="number" class="num-input" style="width:180px;" id="new-channel-id" placeholder="Channel ID">
+                    </div>
+                    <div style="margin-top:12px;">
+                        <button class="btn-primary" onclick="addToken()">➕ Tambah Token</button>
+                    </div>
+                </div>
             </div>
         </div>
 

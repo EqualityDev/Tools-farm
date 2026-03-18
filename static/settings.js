@@ -99,26 +99,28 @@ async function toggleCog(path, value) {
 }
 
 async function restartBot() {
+    if (!confirm('Yakin ingin restart bot?')) return;
     try {
-        const res = await fetch('/api/restart', {
+        await fetch('/api/restart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', password }
         });
-        const json = await res.json();
-        if (json.status === 'success') {
-            showToast('🔄 Bot restart dalam 5 detik...', 'success');
-            setTimeout(() => {
-                location.reload();
-            }, 5000);
-        } else {
-            showToast('❌ Gagal restart: ' + json.message, 'error');
-        }
     } catch (e) {
-        showToast('🔄 Bot sedang restart...', 'success');
-        setTimeout(() => {
-            location.reload();
-        }, 5000);
+        // Server mati - normal
     }
+    showToast('🔄 Bot sedang restart...', 'success');
+    setTimeout(async function waitForServer() {
+        try {
+            const res = await fetch('/api/console', { headers: { password } });
+            if (res.ok) {
+                location.reload();
+            } else {
+                setTimeout(waitForServer, 1000);
+            }
+        } catch (e) {
+            setTimeout(waitForServer, 1000);
+        }
+    }, 5000);
 }
 
 // ── Toast ───────────────────────────────────────────────────
@@ -1001,6 +1003,89 @@ function renderGems() {
             patchSettings(["autoUse","gems","gemsToUse",key], this.checked);
         });
     });
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// TOKEN MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+async function loadTokens() {
+    const container = document.getElementById("tokens-container");
+    if (!container) return;
+    container.innerHTML = "<p class='hint'>Memuat...</p>";
+
+    const res = await fetch("/api/tokens", {
+        headers: { password }
+    });
+    const json = await res.json();
+    if (json.status !== "success") {
+        container.innerHTML = "<p class='hint'>Gagal memuat tokens.</p>";
+        return;
+    }
+
+    container.innerHTML = "";
+    if (json.tokens.length === 0) {
+        container.innerHTML = "<p class='hint'>Tidak ada token.</p>";
+        return;
+    }
+
+    json.tokens.forEach(({ index, token_masked, channel_id }) => {
+        const row = document.createElement("div");
+        row.className = "cmd-card";
+        row.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <div class="setting-label">Token ${index + 1}</div>
+                    <div class="setting-desc" style="font-family:monospace;">${token_masked}</div>
+                    <div class="setting-desc">Channel ID: ${channel_id}</div>
+                </div>
+                <button class="btn-danger" onclick="deleteToken(${index})">🗑 Hapus</button>
+            </div>
+        `;
+        container.appendChild(row);
+    });
+}
+
+async function addToken() {
+    const token = document.getElementById("new-token").value.trim();
+    const channelId = document.getElementById("new-channel-id").value.trim();
+
+    if (!token || !channelId) {
+        return showToast("Token dan Channel ID wajib diisi!", "error");
+    }
+    if (!token.includes(".")) {
+        return showToast("Token tidak valid!", "error");
+    }
+
+    const res = await fetch("/api/tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", password },
+        body: JSON.stringify({ token, channel_id: channelId })
+    });
+    const json = await res.json();
+    if (json.status === "success") {
+        showToast("✅ Token berhasil ditambahkan! Restart bot untuk apply.", "success");
+        document.getElementById("new-token").value = "";
+        document.getElementById("new-channel-id").value = "";
+        loadTokens();
+    } else {
+        showToast("❌ Gagal: " + json.message, "error");
+    }
+}
+
+async function deleteToken(index) {
+    if (!confirm("Yakin ingin hapus token ini?")) return;
+    const res = await fetch(`/api/tokens/${index}`, {
+        method: "DELETE",
+        headers: { password }
+    });
+    const json = await res.json();
+    if (json.status === "success") {
+        showToast("✅ Token dihapus! Restart bot untuk apply.", "success");
+        loadTokens();
+    } else {
+        showToast("❌ Gagal: " + json.message, "error");
+    }
 }
 
 // ═══════════════════════════════════════════════════════════

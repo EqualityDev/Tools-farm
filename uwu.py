@@ -266,6 +266,63 @@ def update_captcha_settings():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
+# ── GET tokens ───────────────────────────────────────────────
+@app.route("/api/tokens", methods=["GET"])
+def get_tokens():
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        tokens = []
+        with open("tokens.txt", "r") as f:
+            for i, line in enumerate(f):
+                line = line.strip()
+                if line:
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        token = parts[0]
+                        channel_id = parts[1]
+                        # Sensor token — tampilkan sebagian saja
+                        masked = token[:10] + "..." + token[-5:]
+                        tokens.append({"index": i, "token_masked": masked, "channel_id": channel_id})
+        return jsonify({"status": "success", "tokens": tokens})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ── ADD token ─────────────────────────────────────────────────
+@app.route("/api/tokens", methods=["POST"])
+def add_token():
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        payload = request.get_json()
+        token = payload["token"].strip()
+        channel_id = str(payload["channel_id"]).strip()
+        with open("tokens.txt", "a") as f:
+            f.write(f"{token} {channel_id}\n")
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ── DELETE token ──────────────────────────────────────────────
+@app.route("/api/tokens/<int:index>", methods=["DELETE"])
+def delete_token(index):
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        with open("tokens.txt", "r") as f:
+            lines = [l for l in f.readlines() if l.strip()]
+        if index < 0 or index >= len(lines):
+            return jsonify({"status": "error", "message": "Index out of range"}), 400
+        lines.pop(index)
+        with open("tokens.txt", "w") as f:
+            f.writelines(lines)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 # ── GET settings.json ────────────────────────────────────────
 @app.route("/api/settings", methods=["GET"])
 def get_settings():
