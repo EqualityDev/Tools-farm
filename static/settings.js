@@ -142,6 +142,23 @@ async function patchGlobal(path, value) {
 document.addEventListener("DOMContentLoaded", async () => {
     initSwipeGesture();
 
+    // Webhook toggles
+    document.getElementById("webhook-enabled").addEventListener("change", function() {
+        patchGlobal(["webhook", "enabled"], this.checked);
+    });
+    document.getElementById("webhook-useless").addEventListener("change", function() {
+        patchGlobal(["webhook", "webhookUselessLog"], this.checked);
+    });
+    document.getElementById("animal-log-enabled").addEventListener("change", function() {
+        patchGlobal(["webhook", "animal_log", "enabled"], this.checked);
+    });
+    document.getElementById("log-lootbox").addEventListener("change", function() {
+        patchGlobal(["webhook", "others", "log_lootbox"], this.checked);
+    });
+    document.getElementById("log-crate").addEventListener("change", function() {
+        patchGlobal(["webhook", "others", "log_crate"], this.checked);
+    });
+
     const [s, g, c, cs] = await Promise.all([
         apiGet("/api/settings"),
         apiGet("/api/global_settings"),
@@ -165,6 +182,12 @@ function renderChannels() {
     document.getElementById("webhook-enabled").checked = webhook.enabled;
     document.getElementById("webhook-url").value = webhook.webhookUrl === "Your webhook URL here!" ? "" : webhook.webhookUrl;
     document.getElementById("webhook-useless").checked = globalData?.webhook?.webhookUselessLog || false;
+    document.getElementById("webhook-captcha-url").value = channelData.webhook?.webhookCaptchaUrl || "";
+    document.getElementById("webhook-ping-uid").value = channelData.webhook?.webhookUserIdToPingOnCaptcha || "";
+    document.getElementById("animal-log-enabled").checked = channelData.webhook?.animal_log?.enabled || false;
+    document.getElementById("log-lootbox").checked = channelData.webhook?.others?.log_lootbox || false;
+    document.getElementById("log-crate").checked = channelData.webhook?.others?.log_crate || false;
+    renderAnimalRanks(channelData.webhook?.animal_log?.rank || {});
     document.getElementById("channelSwitcher-enabled").checked = channelSwitcher.enabled;
 
     const [min, max] = channelSwitcher.interval || [300, 600];
@@ -247,6 +270,43 @@ function saveCSInterval() {
     if (isNaN(min) || isNaN(max)) return showToast("Invalid interval values", "error");
     channelData.channelSwitcher.interval = [min, max];
     patchGlobal(["channelSwitcher", "interval"], [min, max]);
+}
+
+
+async function saveWebhookCaptchaUrl() {
+    const url = document.getElementById("webhook-captcha-url").value.trim();
+    await apiPatch("/api/global_settings", { path: ["webhook", "webhookCaptchaUrl"], value: url || null });
+}
+
+async function saveWebhookPingUid() {
+    const uid = parseInt(document.getElementById("webhook-ping-uid").value);
+    if (isNaN(uid)) return showToast("User ID tidak valid", "error");
+    await apiPatch("/api/global_settings", { path: ["webhook", "webhookUserIdToPingOnCaptcha"], value: uid });
+}
+
+function renderAnimalRanks(ranks) {
+    const container = document.getElementById("animal-rank-container");
+    if (!container) return;
+    container.innerHTML = "";
+    const rankList = ["common","uncommon","rare","epic","mythical","gem","legendary","fabled","hidden"];
+    rankList.forEach((rank, idx) => {
+        const uid = "rank_" + rank;
+        const row = document.createElement("div");
+        row.className = "setting-row";
+        row.innerHTML = `
+            <div class="setting-info">
+                <span class="setting-label">${rank.charAt(0).toUpperCase() + rank.slice(1)}</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="${uid}" ${ranks[rank] ? "checked" : ""}>
+                <span class="slider"></span>
+            </label>
+        `;
+        container.appendChild(row);
+        document.getElementById(uid).addEventListener("change", function() {
+            patchGlobal(["webhook", "animal_log", "rank", rank], this.checked);
+        });
+    });
 }
 
 async function saveWebhookUrl() {

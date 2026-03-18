@@ -78,6 +78,63 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Captcha Webhook URL</span>
+                        <span class="setting-desc">Webhook khusus notifikasi captcha</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="webhook-captcha-url" class="text-input" placeholder="https://discord.com/api/webhooks/...">
+                        <button class="btn-save" onclick="saveWebhookCaptchaUrl()">Save</button>
+                    </div>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Ping User ID (Captcha)</span>
+                        <span class="setting-desc">User yang di-ping saat captcha muncul</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" id="webhook-ping-uid" class="num-input" style="width:180px;" placeholder="User ID">
+                        <button class="btn-save" onclick="saveWebhookPingUid()">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-area" style="height:auto; margin-top:14px;">
+                <h2>⚙ Animal Log</h2>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Enable Animal Log</span>
+                        <span class="setting-desc">Log hewan yang dihunt ke webhook</span>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="animal-log-enabled">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="sub-heading">Rank yang di-log</div>
+                <div id="animal-rank-container"></div>
+                <div class="sub-heading">Lainnya</div>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Log Lootbox</span>
+                        <span class="setting-desc">Log saat membuka lootbox</span>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="log-lootbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-label">Log Crate</span>
+                        <span class="setting-desc">Log saat membuka crate</span>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="log-crate">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
 
             <div class="section-area" style="height:auto; margin-top:14px;">

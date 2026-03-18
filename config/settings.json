@@ -21,7 +21,7 @@
             "notifyStreakLoss": false
         },
         "sell": {
-            "enabled": true,
+            "enabled": false,
             "cooldown": [
                 410,
                 500
@@ -35,7 +35,7 @@
             ]
         },
         "sac": {
-            "enabled": false,
+            "enabled": true,
             "cooldown": [
                 410,
                 500
@@ -44,9 +44,7 @@
                 "c",
                 "u",
                 "r",
-                "e",
-                "m",
-                "l"
+                "e"
             ]
         },
         "pray": {
@@ -90,7 +88,7 @@
             "maxLengthForRandomString": 20
         },
         "cookie": {
-            "enabled": false,
+            "enabled": true,
             "userid": 408785106942164992,
             "pingUser": false
         },
@@ -186,7 +184,7 @@
         }
     },
     "giveawayJoiner": {
-        "enabled": false,
+        "enabled": true,
         "channelsToJoin": [
             1099453684691243098,
             1168797748343099444,
