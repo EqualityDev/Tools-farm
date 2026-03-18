@@ -14,6 +14,7 @@ if (password) {
 
 // ── State ───────────────────────────────────────────────────
 let settingsData = null;
+let captchaSettings = null;
 let globalData = null;
 let channelData = null;
 let consoleInterval = null;
@@ -160,15 +161,17 @@ async function patchGlobal(path, value) {
 // ═══════════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const [s, g, c] = await Promise.all([
+    const [s, g, c, cs] = await Promise.all([
         apiGet("/api/settings"),
         apiGet("/api/global_settings"),
-        apiGet("/api/channels")
+        apiGet("/api/channels"),
+        apiGet("/api/captcha_settings")
     ]);
 
     if (s) { settingsData = s.data; renderCommands(); renderGamble(); renderOther(); }
     if (g) { globalData = g.data; renderGlobalToggles(); renderCaptcha(); renderBattery(); }
     if (c) { channelData = c; renderChannels(); }
+    if (cs) { captchaSettings = cs.data; renderCaptchaSolver(); }
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -751,6 +754,128 @@ function getCommandDesc(name) {
         shop: "Buy items from shop", owo: "Send owo command", autoHuntBot: "Automated hunt bot"
     };
     return descs[name] || "";
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// CAPTCHA SOLVER SETTINGS
+// ═══════════════════════════════════════════════════════════
+async function patchCaptcha(path, value) {
+    const res = await fetch("/api/captcha_settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", password },
+        body: JSON.stringify({ path, value })
+    });
+    const json = await res.json();
+    if (json.status === "success") {
+        showToast("✅ Saved!", "success");
+    } else {
+        showToast("❌ Error: " + (json.message || "unknown"), "error");
+    }
+}
+
+function renderCaptchaSolver() {
+    const container = document.getElementById("captcha-solver-container");
+    if (!container || !captchaSettings) return;
+    container.innerHTML = "";
+
+    const items = [
+        {
+            label: "Notify When Solving",
+            desc: "Tampilkan notifikasi saat mencoba solve captcha",
+            path: ["notifications", "notify_when_attempting_to_solve"],
+            val: captchaSettings.notifications?.notify_when_attempting_to_solve,
+            type: "toggle"
+        },
+        {
+            label: "Image Solver",
+            desc: "Solver gratis dengan akurasi ~90% (perlu setup.py)",
+            path: ["image_solver", "enabled"],
+            val: captchaSettings.image_solver?.enabled,
+            type: "toggle"
+        },
+        {
+            label: "HCaptcha Solver (Berbayar)",
+            desc: "Solver via YesCaptcha API — berbayar, gunakan dengan risiko sendiri",
+            path: ["hcaptcha_solver", "enabled"],
+            val: captchaSettings.hcaptcha_solver?.enabled,
+            type: "toggle"
+        },
+        {
+            label: "YesCaptcha API Key",
+            desc: "API key dari yescaptcha.com",
+            path: ["hcaptcha_solver", "api_key"],
+            val: captchaSettings.hcaptcha_solver?.api_key,
+            type: "text"
+        },
+        {
+            label: "Retries",
+            desc: "Jumlah percobaan ulang saat gagal solve (rekomendasi: 3)",
+            path: ["hcaptcha_solver", "retries"],
+            val: captchaSettings.hcaptcha_solver?.retries,
+            type: "number"
+        }
+    ];
+
+    items.forEach(({ label, desc, path, val, type }, idx) => {
+        const row = document.createElement("div");
+        row.className = "setting-row";
+
+        if (type === "toggle") {
+            const uid = "cs_" + idx;
+            row.innerHTML = `
+                <div class="setting-info">
+                    <span class="setting-label">${label}</span>
+                    <span class="setting-desc">${desc}</span>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
+                    <span class="slider"></span>
+                </label>
+            `;
+            container.appendChild(row);
+            document.getElementById(uid).addEventListener("change", function() {
+                patchCaptcha(path, this.checked);
+            });
+        } else if (type === "text") {
+            const uid = "cs_text_" + idx;
+            row.innerHTML = `
+                <div class="setting-info">
+                    <span class="setting-label">${label}</span>
+                    <span class="setting-desc">${desc}</span>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="text-input" id="${uid}" value="${val || ""}" placeholder="API Key...">
+                    <button class="btn-save" onclick="saveCaptchaText('${uid}', ${JSON.stringify(path)})">Save</button>
+                </div>
+            `;
+            container.appendChild(row);
+        } else if (type === "number") {
+            const uid = "cs_num_" + idx;
+            row.innerHTML = `
+                <div class="setting-info">
+                    <span class="setting-label">${label}</span>
+                    <span class="setting-desc">${desc}</span>
+                </div>
+                <div class="input-group">
+                    <input type="number" class="num-input" id="${uid}" value="${val || 3}" min="1" max="10">
+                    <button class="btn-save" onclick="saveCaptchaNum('${uid}', ${JSON.stringify(path)})">Save</button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+    });
+}
+
+async function saveCaptchaText(uid, path) {
+    const val = document.getElementById(uid).value.trim();
+    await patchCaptcha(path, val);
+}
+
+async function saveCaptchaNum(uid, path) {
+    const val = parseInt(document.getElementById(uid).value);
+    if (isNaN(val) || val < 1) return showToast("Nilai tidak valid", "error");
+    await patchCaptcha(path, val);
 }
 
 // ═══════════════════════════════════════════════════════════

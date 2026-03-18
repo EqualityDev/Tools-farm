@@ -206,6 +206,66 @@ def restart_bot():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+
+# ── GET captcha.toml ─────────────────────────────────────────
+@app.route("/api/captcha_settings", methods=["GET"])
+def get_captcha_settings():
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        with open("config/captcha.toml", "rb") as f:
+            data = tomllib.load(f)
+        return jsonify({"status": "success", "data": data})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ── PATCH captcha.toml ───────────────────────────────────────
+@app.route("/api/captcha_settings", methods=["PATCH"])
+def update_captcha_settings():
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        payload = request.get_json()
+        key_path = payload["path"]
+        new_value = payload["value"]
+
+        with open("config/captcha.toml", "r") as f:
+            content_toml = f.read()
+
+        # Update nilai di TOML secara string replacement
+        if len(key_path) == 2:
+            section, key = key_path
+            if isinstance(new_value, bool):
+                old_true = f"{key} = true"
+                old_false = f"{key} = false"
+                new_val_str = f"{key} = {'true' if new_value else 'false'}"
+                if old_true in content_toml:
+                    content_toml = content_toml.replace(old_true, new_val_str)
+                elif old_false in content_toml:
+                    content_toml = content_toml.replace(old_false, new_val_str)
+            elif isinstance(new_value, str):
+                import re
+                content_toml = re.sub(
+                    rf'{key} = ".*?"',
+                    f'{key} = "{new_value}"',
+                    content_toml
+                )
+            elif isinstance(new_value, int):
+                import re
+                content_toml = re.sub(
+                    rf'{key} = \d+',
+                    f'{key} = {new_value}',
+                    content_toml
+                )
+
+        with open("config/captcha.toml", "w") as f:
+            f.write(content_toml)
+
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 # ── GET settings.json ────────────────────────────────────────
 @app.route("/api/settings", methods=["GET"])
 def get_settings():
