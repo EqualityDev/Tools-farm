@@ -98,12 +98,6 @@ async function toggleCog(path, value) {
     });
 }
 
-async function restartBot() {
-    if (!confirm('Yakin ingin restart bot?')) return;
-    try {
-        await fetch('/api/restart', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', password }
         });
     } catch (e) {
         // Server mati - normal
@@ -113,7 +107,7 @@ async function restartBot() {
         try {
             const res = await fetch('/api/console', { headers: { password } });
             if (res.ok) {
-                location.reload();
+                window.location.href = window.location.href.split("?")[0] + "?t=" + Date.now();
             } else {
                 setTimeout(waitForServer, 1000);
             }
