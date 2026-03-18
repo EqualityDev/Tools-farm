@@ -279,8 +279,7 @@ async function saveWebhookCaptchaUrl() {
 }
 
 async function saveWebhookPingUid() {
-    const uid = parseInt(document.getElementById("webhook-ping-uid").value);
-    if (isNaN(uid)) return showToast("User ID tidak valid", "error");
+    const uid = document.getElementById("webhook-ping-uid").value.trim();
     await apiPatch("/api/global_settings", { path: ["webhook", "webhookUserIdToPingOnCaptcha"], value: uid });
 }
 
