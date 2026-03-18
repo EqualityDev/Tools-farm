@@ -98,15 +98,25 @@ async function toggleCog(path, value) {
 }
 
 async function restartBot() {
-    const res = await fetch('/api/restart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', password }
-    });
-    const json = await res.json();
-    if (json.status === 'success') {
+    try {
+        const res = await fetch('/api/restart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', password }
+        });
+        const json = await res.json();
+        if (json.status === 'success') {
+            showToast('🔄 Bot restart dalam 5 detik...', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 5000);
+        } else {
+            showToast('❌ Gagal restart: ' + json.message, 'error');
+        }
+    } catch (e) {
         showToast('🔄 Bot sedang restart...', 'success');
-    } else {
-        showToast('❌ Gagal restart: ' + json.message, 'error');
+        setTimeout(() => {
+            location.reload();
+        }, 5000);
     }
 }
 
