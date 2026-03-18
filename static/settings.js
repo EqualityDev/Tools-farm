@@ -136,6 +136,7 @@ async function patchGlobal(path, value) {
 // INIT — load all data on page load
 // ═══════════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", async () => {
+
     const [s, g, c] = await Promise.all([
         apiGet("/api/settings"),
         apiGet("/api/global_settings"),
@@ -288,6 +289,16 @@ function renderCommands() {
             patchSettings(["commands", "autoHuntBot", "upgrader", "enabled"], this.checked);
         });
 
+        // autoHuntBot traits
+        if (name === "autoHuntBot") {
+            ["efficiency","duration","cost","gain","exp","radar"].forEach(t => {
+                const traitCb = card.querySelector(`#trait-${t}`);
+                if (traitCb) traitCb.addEventListener("change", function() {
+                    patchSettings(["commands","autoHuntBot","upgrader","traits",t], this.checked);
+                });
+            });
+        }
+
         // rarity checkboxes
         if (cfg.rarity) {
             ["c","u","r","e","m","l","g"].forEach(r => {
@@ -432,6 +443,11 @@ function buildCommandCard(name, cfg) {
 
     // autoHuntBot
     if (name === "autoHuntBot") {
+        const traits = ["efficiency", "duration", "cost", "gain", "exp", "radar"];
+        const priorities = cfg.upgrader?.priorities || {};
+        const traitEnabled = cfg.upgrader?.traits || {};
+        const sleeptime = cfg.upgrader?.sleeptime || [10, 15];
+
         html += `
         <div class="cmd-extra-row">
             <span class="setting-desc">Cash to Spend</span>
@@ -446,6 +462,32 @@ function buildCommandCard(name, cfg) {
                 <input type="checkbox" id="upgrader-enabled" ${cfg.upgrader?.enabled ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
+        </div>
+        <div class="cmd-extra-row">
+            <span class="setting-desc">Upgrader Sleep (detik)</span>
+            <div class="range-inputs">
+                <input type="number" class="num-input" value="${sleeptime[0]}" id="hb-sleep-min" min="1">
+                <span>–</span>
+                <input type="number" class="num-input" value="${sleeptime[1]}" id="hb-sleep-max" min="1">
+                <button class="btn-save" onclick="saveHuntbotSleep()">Save</button>
+            </div>
+        </div>
+        <div class="cmd-extra-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
+            <span class="setting-desc">Traits & Priorities</span>
+            <div style="display:flex; flex-direction:column; gap:6px; width:100%;">
+                ${traits.map(t => `
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+                    <label style="display:flex; align-items:center; gap:6px; color:var(--text-primary); font-size:0.88rem; cursor:pointer; min-width:120px;">
+                        <input type="checkbox" id="trait-${t}" ${traitEnabled[t] ? "checked" : ""} style="cursor:pointer;">
+                        ${t.charAt(0).toUpperCase() + t.slice(1)}
+                    </label>
+                    <div class="input-group">
+                        <span style="color:var(--text-dim); font-size:0.78rem;">Priority</span>
+                        <input type="number" class="num-input" style="width:60px;" id="priority-${t}" value="${priorities[t] || 1}" min="1" max="10">
+                        <button class="btn-save" onclick="saveHuntbotPriority('${t}')">Save</button>
+                    </div>
+                </div>`).join("")}
+            </div>
         </div>`;
     }
 
@@ -468,6 +510,23 @@ function hasExtraFields(name, cfg) {
     return cfg.cooldown || cfg.rarity || cfg.hasOwnProperty("userid") ||
            cfg.hasOwnProperty("pingUser") || cfg.customChannel ||
            name === "shop" || name === "autoHuntBot" || name === "lottery";
+}
+
+async function saveHuntbotSleep() {
+    const min = parseInt(document.getElementById("hb-sleep-min").value);
+    const max = parseInt(document.getElementById("hb-sleep-max").value);
+    if (isNaN(min) || isNaN(max) || min < 1 || max < min) {
+        return showToast("Sleep time tidak valid", "error");
+    }
+    await patchSettings(["commands", "autoHuntBot", "upgrader", "sleeptime"], [min, max]);
+}
+
+async function saveHuntbotPriority(trait) {
+    const val = parseInt(document.getElementById(`priority-${trait}`).value);
+    if (isNaN(val) || val < 1 || val > 10) {
+        return showToast("Priority harus 1-10", "error");
+    }
+    await patchSettings(["commands", "autoHuntBot", "upgrader", "priorities", trait], val);
 }
 
 async function saveCooldown(name) {

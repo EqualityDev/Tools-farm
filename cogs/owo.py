@@ -20,6 +20,7 @@ class Owo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.owo_ongoing = False
+        self.stopped = False
 
     async def send_owo(self, startup=False):
         # Hot reload check
@@ -40,12 +41,16 @@ class Owo(commands.Cog):
                 self.bot.settings_dict["commands"]["owo"]["cooldown"]
             )
             self.owo_ongoing = False
+        self.stopped = False
         if self.stopped or not self.bot.settings_dict["commands"]["owo"]["enabled"]:
             await self.bot.log("owo dimatikan setelah sleep, berhenti.", "#4a270c")
             return
         await self.bot.put_queue(cmd, quick=True)
 
     """gets executed when the cog is first loaded"""
+
+    async def cog_unload(self):
+        self.stopped = True
 
     async def cog_load(self):
         if (

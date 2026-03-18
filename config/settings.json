@@ -46,8 +46,7 @@
                 "r",
                 "e",
                 "m",
-                "l",
-                "g"
+                "l"
             ]
         },
         "pray": {
@@ -56,9 +55,7 @@
                 310,
                 400
             ],
-            "userid": [
-                1428825165369839600
-            ],
+            "userid": [],
             "pingUser": false,
             "customChannel": {
                 "enabled": false,
