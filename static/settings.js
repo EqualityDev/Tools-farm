@@ -140,6 +140,7 @@ async function patchGlobal(path, value) {
 // INIT — load all data on page load
 // ═══════════════════════════════════════════════════════════
 document.addEventListener("DOMContentLoaded", async () => {
+    initSwipeGesture();
 
     const [s, g, c, cs] = await Promise.all([
         apiGet("/api/settings"),
@@ -1064,6 +1065,54 @@ async function deleteToken(index) {
     } else {
         showToast("❌ Gagal: " + json.message, "error");
     }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// SWIPE GESTURE — ganti tab dengan swipe kiri/kanan
+// ═══════════════════════════════════════════════════════════
+function initSwipeGesture() {
+    const tabOrder = ["channels", "commands", "global", "console", "tokens"];
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener("touchstart", function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener("touchend", function(e) {
+        const dx = e.changedTouches[0].screenX - touchStartX;
+        const dy = e.changedTouches[0].screenY - touchStartY;
+
+        // Abaikan jika gerakan vertikal lebih besar dari horizontal
+        if (Math.abs(dy) > Math.abs(dx)) return;
+        // Minimal swipe 60px
+        if (Math.abs(dx) < 60) return;
+
+        // Cari tab yang aktif sekarang
+        const activeBtn = document.querySelector(".tab-btn.active");
+        if (!activeBtn) return;
+        const currentTab = activeBtn.dataset.tab;
+        const currentIdx = tabOrder.indexOf(currentTab);
+        if (currentIdx === -1) return;
+
+        let nextIdx;
+        if (dx < 0) {
+            // Swipe kiri → tab berikutnya
+            nextIdx = Math.min(currentIdx + 1, tabOrder.length - 1);
+        } else {
+            // Swipe kanan → tab sebelumnya
+            nextIdx = Math.max(currentIdx - 1, 0);
+        }
+
+        if (nextIdx === currentIdx) return;
+
+        // Klik tab berikutnya
+        const nextTab = tabOrder[nextIdx];
+        const nextBtn = document.querySelector(`.tab-btn[data-tab="${nextTab}"]`);
+        if (nextBtn) nextBtn.click();
+    }, { passive: true });
 }
 
 // ═══════════════════════════════════════════════════════════
