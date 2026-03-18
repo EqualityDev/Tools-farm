@@ -37,6 +37,9 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
             loadConsole();
             consoleInterval = setInterval(loadConsole, 5000);
         }
+        if (btn.dataset.tab === "tokens") {
+            loadTokens();
+        }
     });
 });
 
