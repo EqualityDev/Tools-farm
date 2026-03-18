@@ -699,7 +699,8 @@ function renderOther() {
         { label: "Custom Commands", desc: "Enable custom command list", path: ["customCommands", "enabled"], val: s.customCommands.enabled },
     ];
 
-    simpleToggles.forEach(({ label, desc, path, val }) => {
+    simpleToggles.forEach(({ label, desc, path, val }, idx) => {
+        const uid = "ot_" + idx;
         const row = document.createElement("div");
         row.className = "setting-row";
         row.innerHTML = `
@@ -708,12 +709,14 @@ function renderOther() {
                 <span class="setting-desc">${desc}</span>
             </div>
             <label class="toggle">
-                <input type="checkbox" ${val ? "checked" : ""}
-                    onchange="patchSettings(${JSON.stringify(path)}, this.checked)">
+                <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
         `;
         container.appendChild(row);
+        document.getElementById(uid).addEventListener("change", function() {
+            patchSettings(path, this.checked);
+        });
     });
 }
 
@@ -744,7 +747,8 @@ function renderGlobalToggles() {
         { label: "Stop if Captcha Fails", desc: "Stop bot if captcha cannot be solved", path: ["captcha", "stopCodeIfFailedToSolve"], val: g.captcha.stopCodeIfFailedToSolve },
     ];
 
-    toggles.forEach(({ label, desc, path, val }) => {
+    toggles.forEach(({ label, desc, path, val }, idx) => {
+        const uid = "gt_" + idx;
         const row = document.createElement("div");
         row.className = "setting-row";
         row.innerHTML = `
@@ -753,12 +757,14 @@ function renderGlobalToggles() {
                 <span class="setting-desc">${desc}</span>
             </div>
             <label class="toggle">
-                <input type="checkbox" ${val ? "checked" : ""}
-                    onchange="patchGlobal(${JSON.stringify(path)}, this.checked)">
+                <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
         `;
         container.appendChild(row);
+        document.getElementById(uid).addEventListener("change", function() {
+            patchGlobal(path, this.checked);
+        });
     });
 }
 
@@ -775,7 +781,8 @@ function renderCaptcha() {
         { label: "Recurring Alerts", desc: "Repeat alert multiple times", path: ["captcha","notifications","reccur","enabled"], val: cap.notifications.reccur.enabled },
     ];
 
-    toggles.forEach(({ label, desc, path, val }) => {
+    toggles.forEach(({ label, desc, path, val }, idx) => {
+        const uid = "ct_" + idx;
         const row = document.createElement("div");
         row.className = "setting-row";
         row.innerHTML = `
@@ -784,12 +791,14 @@ function renderCaptcha() {
                 <span class="setting-desc">${desc}</span>
             </div>
             <label class="toggle">
-                <input type="checkbox" ${val ? "checked" : ""}
-                    onchange="patchGlobal(${JSON.stringify(path)}, this.checked)">
+                <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
         `;
         container.appendChild(row);
+        document.getElementById(uid).addEventListener("change", function() {
+            patchGlobal(path, this.checked);
+        });
     });
 }
 
