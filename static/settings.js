@@ -1,5 +1,5 @@
 /*
- * settings.js — ToolsFarmEquality Settings Dashboard
+ * settings.js — OwO-Dusk Settings Dashboard
  * Handles tab switching, data loading, and API calls
  */
 
@@ -262,6 +262,41 @@ function renderCommands() {
         card.className = "cmd-card";
         card.innerHTML = buildCommandCard(name, cfg);
         container.appendChild(card);
+
+        // Pasang addEventListener setelah appendChild
+        // Toggle enabled
+        const enabledCb = card.querySelector(`#enabled-${name}`);
+        if (enabledCb) enabledCb.addEventListener("change", function() {
+            patchSettings(["commands", name, "enabled"], this.checked);
+        });
+
+        // pingUser
+        const pingCb = card.querySelector(`#ping-${name}`);
+        if (pingCb) pingCb.addEventListener("change", function() {
+            patchSettings(["commands", name, "pingUser"], this.checked);
+        });
+
+        // customChannel enabled
+        const ccCb = card.querySelector(`#cc-enabled-${name}`);
+        if (ccCb) ccCb.addEventListener("change", function() {
+            patchSettings(["commands", name, "customChannel", "enabled"], this.checked);
+        });
+
+        // autoHuntBot upgrader
+        const upgraderCb = card.querySelector(`#upgrader-enabled`);
+        if (upgraderCb) upgraderCb.addEventListener("change", function() {
+            patchSettings(["commands", "autoHuntBot", "upgrader", "enabled"], this.checked);
+        });
+
+        // rarity checkboxes
+        if (cfg.rarity) {
+            ["c","u","r","e","m","l","g"].forEach(r => {
+                const rarityCb = card.querySelector(`#rarity-${name}-${r}`);
+                if (rarityCb) rarityCb.addEventListener("change", function() {
+                    saveRarity(name, r, this.checked);
+                });
+            });
+        }
     });
 }
 
@@ -270,14 +305,13 @@ function buildCommandCard(name, cfg) {
     const hasBorder = hasExtraFields(name, cfg);
 
     let html = `
-        <div class="setting-row" style="border-bottom:${hasBorder ? '1px solid rgba(130,100,230,0.12)' : 'none'}; padding-bottom:10px;">
+        <div class="setting-row" style="border-bottom:${hasBorder ? '1px solid rgba(181,101,29,0.2)' : 'none'}; padding-bottom:10px;">
             <div class="setting-info">
                 <span class="setting-label">${name}</span>
                 <span class="setting-desc">${desc}</span>
             </div>
             <label class="toggle">
-                <input type="checkbox" ${cfg.enabled ? "checked" : ""}
-                    onchange="patchSettings(['commands','${name}','enabled'], this.checked)">
+                <input type="checkbox" id="enabled-${name}" ${cfg.enabled ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
         </div>
@@ -306,9 +340,8 @@ function buildCommandCard(name, cfg) {
             <span class="setting-desc" style="width:100%">Rarity</span>
             <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
                 ${rarities.map(r => `
-                <label style="display:flex; align-items:center; gap:4px; color:#ffffff; font-size:0.82rem; cursor:pointer;">
-                    <input type="checkbox" ${cfg.rarity.includes(r) ? "checked" : ""}
-                        onchange="saveRarity('${name}', '${r}', this.checked)"
+                <label style="display:flex; align-items:center; gap:4px; color:var(--text-primary); font-size:0.85rem; cursor:pointer;">
+                    <input type="checkbox" id="rarity-${name}-${r}" ${cfg.rarity.includes(r) ? "checked" : ""}
                         style="cursor:pointer;">
                     ${rarityLabels[r]}
                 </label>`).join("")}
@@ -316,7 +349,7 @@ function buildCommandCard(name, cfg) {
         </div>`;
     }
 
-    // Userid (cookie, pray, curse)
+    // Userid (cookie)
     if (cfg.hasOwnProperty("userid") && !Array.isArray(cfg.userid)) {
         html += `
         <div class="cmd-extra-row">
@@ -347,27 +380,25 @@ function buildCommandCard(name, cfg) {
         </div>`;
     }
 
-    // Ping user toggle (pray, curse, cookie)
+    // Ping user toggle
     if (cfg.hasOwnProperty("pingUser")) {
         html += `
         <div class="cmd-extra-row">
             <span class="setting-desc">Ping User</span>
             <label class="toggle">
-                <input type="checkbox" ${cfg.pingUser ? "checked" : ""}
-                    onchange="patchSettings(['commands','${name}','pingUser'], this.checked)">
+                <input type="checkbox" id="ping-${name}" ${cfg.pingUser ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
         </div>`;
     }
 
-    // Custom channel (pray, curse)
+    // Custom channel
     if (cfg.customChannel) {
         html += `
         <div class="cmd-extra-row">
             <span class="setting-desc">Custom Channel</span>
             <label class="toggle">
-                <input type="checkbox" ${cfg.customChannel.enabled ? "checked" : ""}
-                    onchange="patchSettings(['commands','${name}','customChannel','enabled'], this.checked)">
+                <input type="checkbox" id="cc-enabled-${name}" ${cfg.customChannel.enabled ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
         </div>
@@ -399,7 +430,7 @@ function buildCommandCard(name, cfg) {
         </div>`;
     }
 
-    // autoHuntBot extra fields
+    // autoHuntBot
     if (name === "autoHuntBot") {
         html += `
         <div class="cmd-extra-row">
@@ -412,8 +443,7 @@ function buildCommandCard(name, cfg) {
         <div class="cmd-extra-row">
             <span class="setting-desc">Upgrader</span>
             <label class="toggle">
-                <input type="checkbox" ${cfg.upgrader?.enabled ? "checked" : ""}
-                    onchange="patchSettings(['commands','autoHuntBot','upgrader','enabled'], this.checked)">
+                <input type="checkbox" id="upgrader-enabled" ${cfg.upgrader?.enabled ? "checked" : ""}>
                 <span class="slider"></span>
             </label>
         </div>`;
@@ -610,8 +640,7 @@ function renderOther() {
         { label: "Custom Commands", desc: "Enable custom command list", path: ["customCommands", "enabled"], val: s.customCommands.enabled },
     ];
 
-    simpleToggles.forEach(({ label, desc, path, val }, idx) => {
-        const uid = "other_" + idx;
+    simpleToggles.forEach(({ label, desc, path, val }) => {
         const row = document.createElement("div");
         row.className = "setting-row";
         row.innerHTML = `
@@ -620,14 +649,12 @@ function renderOther() {
                 <span class="setting-desc">${desc}</span>
             </div>
             <label class="toggle">
-                <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
+                <input type="checkbox" ${val ? "checked" : ""}
+                    onchange="patchSettings(${JSON.stringify(path)}, this.checked)">
                 <span class="slider"></span>
             </label>
         `;
         container.appendChild(row);
-        document.getElementById(uid).addEventListener("change", function() {
-            patchSettings(path, this.checked);
-        });
     });
 }
 
@@ -658,25 +685,22 @@ function renderGlobalToggles() {
         { label: "Stop if Captcha Fails", desc: "Stop bot if captcha cannot be solved", path: ["captcha", "stopCodeIfFailedToSolve"], val: g.captcha.stopCodeIfFailedToSolve },
     ];
 
-    toggles.forEach(({ label, desc, path, val }, idx) => {
-            const uid = "gt_" + idx;
-            const row = document.createElement("div");
-            row.className = "setting-row";
-            row.innerHTML = `
-                <div class="setting-info">
-                    <span class="setting-label">${label}</span>
-                    <span class="setting-desc">${desc}</span>
-                </div>
-                <label class="toggle">
-                    <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
-                    <span class="slider"></span>
-                </label>
-            `;
-            container.appendChild(row);
-            document.getElementById(uid).addEventListener("change", function() {
-                patchGlobal(path, this.checked);
-            });
-        });
+    toggles.forEach(({ label, desc, path, val }) => {
+        const row = document.createElement("div");
+        row.className = "setting-row";
+        row.innerHTML = `
+            <div class="setting-info">
+                <span class="setting-label">${label}</span>
+                <span class="setting-desc">${desc}</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" ${val ? "checked" : ""}
+                    onchange="patchGlobal(${JSON.stringify(path)}, this.checked)">
+                <span class="slider"></span>
+            </label>
+        `;
+        container.appendChild(row);
+    });
 }
 
 function renderCaptcha() {
@@ -692,26 +716,22 @@ function renderCaptcha() {
         { label: "Recurring Alerts", desc: "Repeat alert multiple times", path: ["captcha","notifications","reccur","enabled"], val: cap.notifications.reccur.enabled },
     ];
 
-    toggles.forEach(({ label, desc, path, val }, idx) => {
-            const uid = "ct_" + idx;
-            const row = document.createElement("div");
-            row.className = "setting-row";
-            row.innerHTML = `
-                <div class="setting-info">
-                    <span class="setting-label">${label}</span>
-                    <span class="setting-desc">${desc}</span>
-                </div>
-                <label class="toggle">
-                    <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
-                    <span class="slider"></span>
-                </label>
-            `;
-            container.appendChild(row);
-            document.getElementById(uid).addEventListener("change", function() {
-                patchGlobal(path, this.checked);
-            });
-        });
-
+    toggles.forEach(({ label, desc, path, val }) => {
+        const row = document.createElement("div");
+        row.className = "setting-row";
+        row.innerHTML = `
+            <div class="setting-info">
+                <span class="setting-label">${label}</span>
+                <span class="setting-desc">${desc}</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" ${val ? "checked" : ""}
+                    onchange="patchGlobal(${JSON.stringify(path)}, this.checked)">
+                <span class="slider"></span>
+            </label>
+        `;
+        container.appendChild(row);
+    });
 }
 
 function renderBattery() {

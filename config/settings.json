@@ -56,7 +56,9 @@
                 310,
                 400
             ],
-            "userid": [],
+            "userid": [
+                1428825165369839600
+            ],
             "pingUser": false,
             "customChannel": {
                 "enabled": false,
