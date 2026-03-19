@@ -124,7 +124,9 @@ config_updated = [None]
 bot_instances = []
 bot_loop = None
 settings_lock = threading.Lock()
+misc_lock = threading.Lock()
 global_settings_lock = threading.Lock()
+misc_lock = threading.Lock()
 
 
 def read_json(path):
@@ -319,6 +321,38 @@ def delete_token(index):
         lines.pop(index)
         with open("tokens.txt", "w") as f:
             f.writelines(lines)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ── GET misc.json ─────────────────────────────────────────────
+@app.route("/api/misc", methods=["GET"])
+def get_misc():
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        data = read_json("config/misc.json")
+        return jsonify({"status": "success", "data": data})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+# ── PATCH misc.json ───────────────────────────────────────────
+@app.route("/api/misc", methods=["PATCH"])
+def update_misc():
+    if not check_password(request):
+        return "Invalid Password", 401
+    try:
+        payload = request.get_json()
+        path = payload["path"]
+        value = payload["value"]
+        data = read_json("config/misc.json")
+        ref = data
+        for key in path[:-1]:
+            ref = ref[key]
+        ref[path[-1]] = value
+        write_json("config/misc.json", data, misc_lock)
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500

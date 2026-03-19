@@ -14,6 +14,7 @@ if (password) {
 
 // ── State ───────────────────────────────────────────────────
 let settingsData = null;
+let miscData = null;
 let captchaSettings = null;
 let globalData = null;
 let channelData = null;
@@ -159,17 +160,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         patchGlobal(["webhook", "others", "log_crate"], this.checked);
     });
 
-    const [s, g, c, cs] = await Promise.all([
+    const [s, g, c, cs, ms] = await Promise.all([
         apiGet("/api/settings"),
         apiGet("/api/global_settings"),
         apiGet("/api/channels"),
-        apiGet("/api/captcha_settings")
+        apiGet("/api/captcha_settings"),
+        apiGet("/api/misc")
     ]);
 
     if (s) { settingsData = s.data; renderCommands(); renderGamble(); renderOther(); renderGems(); }
     if (g) { globalData = g.data; renderGlobalToggles(); renderCaptcha(); renderBattery(); }
     if (c) { channelData = c; renderChannels(); }
     if (cs) { captchaSettings = cs.data; renderCaptchaSolver(); }
+    if (ms) { miscData = ms.data; renderMisc(); }
 });
 
 // ═══════════════════════════════════════════════════════════
@@ -796,6 +799,61 @@ function getCommandDesc(name) {
     return descs[name] || "";
 }
 
+
+
+// ═══════════════════════════════════════════════════════════
+// MISC SETTINGS
+// ═══════════════════════════════════════════════════════════
+async function patchMisc(path, value) {
+    const res = await fetch("/api/misc", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", password },
+        body: JSON.stringify({ path, value })
+    });
+    const json = await res.json();
+    if (json.status === "success") {
+        showToast("✅ Saved!", "success");
+    } else {
+        showToast("❌ Error: " + (json.message || "unknown"), "error");
+    }
+}
+
+function renderMisc() {
+    const container = document.getElementById("misc-container");
+    if (!container || !miscData) return;
+    container.innerHTML = "";
+
+    const toggles = [
+        { label: "Host Mode", desc: "Mode untuk server/VPS — nonaktifkan fitur mobile (battery check, popup)", path: ["hostMode"], val: miscData.hostMode },
+        { label: "Debug Mode", desc: "Aktifkan debug logging", path: ["debug", "enabled"], val: miscData.debug?.enabled },
+        { label: "Log to Text File", desc: "Simpan log ke file teks", path: ["debug", "logInTextFile"], val: miscData.debug?.logInTextFile },
+        { label: "Hide User", desc: "Sembunyikan nama user di log", path: ["debug", "hideUser"], val: miscData.debug?.hideUser },
+        { label: "Compact Mode", desc: "Tampilan console lebih ringkas", path: ["console", "compactMode"], val: miscData.console?.compactMode },
+        { label: "Hide Star Repo Message", desc: "Sembunyikan pesan star repo", path: ["console", "hideStarRepoMessage"], val: miscData.console?.hideStarRepoMessage },
+        { label: "Disable Command Send Log", desc: "Nonaktifkan log saat command dikirim", path: ["console", "disableCommandSendLog"], val: miscData.console?.disableCommandSendLog },
+        { label: "Show News", desc: "Tampilkan berita/update terbaru", path: ["news"], val: miscData.news },
+    ];
+
+    toggles.forEach(({ label, desc, path, val }, idx) => {
+        const uid = "misc_" + idx;
+        const row = document.createElement("div");
+        row.className = "setting-row";
+        row.innerHTML = `
+            <div class="setting-info">
+                <span class="setting-label">${label}</span>
+                <span class="setting-desc">${desc}</span>
+            </div>
+            <label class="toggle">
+                <input type="checkbox" id="${uid}" ${val ? "checked" : ""}>
+                <span class="slider"></span>
+            </label>
+        `;
+        container.appendChild(row);
+        document.getElementById(uid).addEventListener("change", function() {
+            patchMisc(path, this.checked);
+        });
+    });
+}
 
 // ═══════════════════════════════════════════════════════════
 // CAPTCHA SOLVER SETTINGS

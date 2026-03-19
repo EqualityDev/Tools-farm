@@ -12,101 +12,257 @@
     },
     "hostMode": false,
     "command_info": {
-        "cash": {"priority": 1, "basecd": 5, "log_color": "#52b179"},
-        "hunt": {"priority": 2, "basecd": 15, "log_color": "#8b76e6"},
-        "battle": {"priority": 2, "basecd": 15, "log_color": "#8b76e6"},
-        "gems": {"priority": 3, "basecd": 5, "log_color": "#b168e6"},
-        "inv": {"priority": 3, "basecd": 10, "log_color": "#74c8d1"},
-        "zoo": {"priority": 3, "basecd": 45, "log_color": "#74c8d1"},
-        "team": {"priority": 3, "basecd": 3, "log_color": "#74c8d1"},
-        "owo": {"priority": 3, "basecd": 10, "log_color": "#c28bdb"},
-        "lootbox": {"priority": 4, "basecd": 5, "log_color": "#b198be"},
-        "crate": {"priority": 4, "basecd": 5, "log_color": "#b198be"},
-        "huntbot": {"priority": 5, "basecd": 1, "log_color": "#39578c"},
-        "coinflip": {"priority": 5, "basecd": 15, "log_color": "#dabfae"},
-        "slots": {"priority": 5, "basecd": 15, "log_color": "#dabfae"},
-        "blackjack": {"priority": 5, "basecd": 15, "log_color": "#dabfae"},
-        "pray": {"priority": 6, "basecd": 300, "log_color": "#a5c7e3"},
-        "cookie": {"priority": 7, "basecd": 5, "log_color": "#a5c7e3"},
-        "daily": {"priority": 7, "basecd": 5, "log_color": "#6a9882"},
-        "lottery": {"priority": 8, "basecd": 5, "log_color": "#6a9882"},
-        "level": {"priority": 8, "basecd": 15, "log_color": "#939393"},
-        "sell": {"priority": 9, "basecd": 1, "log_color": "#d0d0b8"},
-        "shop": {"priority": 9, "basecd": 15, "log_color": "#d0d0b8"},
-        "upgrade": {"priority": 9, "basecd": 1, "log_color": "#6892e4"},
-        "customcommand": {"priority": 11, "basecd": 1, "log_color": "#c9a4bc"}
+        "cash": {
+            "priority": 1,
+            "basecd": 5,
+            "log_color": "#52b179"
+        },
+        "hunt": {
+            "priority": 2,
+            "basecd": 15,
+            "log_color": "#8b76e6"
+        },
+        "battle": {
+            "priority": 2,
+            "basecd": 15,
+            "log_color": "#8b76e6"
+        },
+        "gems": {
+            "priority": 3,
+            "basecd": 5,
+            "log_color": "#b168e6"
+        },
+        "inv": {
+            "priority": 3,
+            "basecd": 10,
+            "log_color": "#74c8d1"
+        },
+        "zoo": {
+            "priority": 3,
+            "basecd": 45,
+            "log_color": "#74c8d1"
+        },
+        "team": {
+            "priority": 3,
+            "basecd": 3,
+            "log_color": "#74c8d1"
+        },
+        "owo": {
+            "priority": 3,
+            "basecd": 10,
+            "log_color": "#c28bdb"
+        },
+        "lootbox": {
+            "priority": 4,
+            "basecd": 5,
+            "log_color": "#b198be"
+        },
+        "crate": {
+            "priority": 4,
+            "basecd": 5,
+            "log_color": "#b198be"
+        },
+        "huntbot": {
+            "priority": 5,
+            "basecd": 1,
+            "log_color": "#39578c"
+        },
+        "coinflip": {
+            "priority": 5,
+            "basecd": 15,
+            "log_color": "#dabfae"
+        },
+        "slots": {
+            "priority": 5,
+            "basecd": 15,
+            "log_color": "#dabfae"
+        },
+        "blackjack": {
+            "priority": 5,
+            "basecd": 15,
+            "log_color": "#dabfae"
+        },
+        "pray": {
+            "priority": 6,
+            "basecd": 300,
+            "log_color": "#a5c7e3"
+        },
+        "cookie": {
+            "priority": 7,
+            "basecd": 5,
+            "log_color": "#a5c7e3"
+        },
+        "daily": {
+            "priority": 7,
+            "basecd": 5,
+            "log_color": "#6a9882"
+        },
+        "lottery": {
+            "priority": 8,
+            "basecd": 5,
+            "log_color": "#6a9882"
+        },
+        "level": {
+            "priority": 8,
+            "basecd": 15,
+            "log_color": "#939393"
+        },
+        "sell": {
+            "priority": 9,
+            "basecd": 1,
+            "log_color": "#d0d0b8"
+        },
+        "shop": {
+            "priority": 9,
+            "basecd": 15,
+            "log_color": "#d0d0b8"
+        },
+        "upgrade": {
+            "priority": 9,
+            "basecd": 1,
+            "log_color": "#6892e4"
+        },
+        "customcommand": {
+            "priority": 11,
+            "basecd": 1,
+            "log_color": "#c9a4bc"
+        }
     },
     "alias": {
         "hunt": {
             "normal": "hunt",
             "shortform": "h",
-            "alias": ["hunt", "catch", "h"]
+            "alias": [
+                "hunt",
+                "catch",
+                "h"
+            ]
         },
         "battle": {
             "normal": "battle",
             "shortform": "b",
-            "alias": ["battle", "fight", "b"]
+            "alias": [
+                "battle",
+                "fight",
+                "b"
+            ]
         },
         "owo": {
             "normal": "owo",
-            "alias": ["owo", "uwu"]
+            "alias": [
+                "owo",
+                "uwu"
+            ]
         },
         "sac": {
             "normal": "sac",
-            "alias": ["sac", "sacrifice", "essence", "sc"]
+            "alias": [
+                "sac",
+                "sacrifice",
+                "essence",
+                "sc"
+            ]
         },
         "lottery": {
             "normal": "lottery",
-            "alias": ["lottery", "bet", "lotto"]
+            "alias": [
+                "lottery",
+                "bet",
+                "lotto"
+            ]
         },
         "cookie": {
             "normal": "cookie",
-            "alias": ["cookie", "rep"]
+            "alias": [
+                "cookie",
+                "rep"
+            ]
         },
         "shop": {
             "normal": "shop",
-            "alias": ["shop", "market"]
+            "alias": [
+                "shop",
+                "market"
+            ]
         },
         "huntbot": {
             "normal": "ah",
-            "alias": ["ah", "hb", "huntbot", "autohunt"]
+            "alias": [
+                "ah",
+                "hb",
+                "huntbot",
+                "autohunt"
+            ]
         },
         "zoo": {
             "normal": "zoo",
-            "alias": ["zoo", "z"]
+            "alias": [
+                "zoo",
+                "z"
+            ]
         },
         "cash": {
             "normal": "cash",
-            "alias": ["cash", "money", "currency", "cowoncy", "credit", "balance"]
+            "alias": [
+                "cash",
+                "money",
+                "currency",
+                "cowoncy",
+                "credit",
+                "balance"
+            ]
         },
         "use": {
             "normal": "use",
-            "alias": ["use", "equip"]
+            "alias": [
+                "use",
+                "equip"
+            ]
         },
         "lootbox": {
             "normal": "lootbox",
-            "alias": ["lootbox", "lb"]
+            "alias": [
+                "lootbox",
+                "lb"
+            ]
         },
         "crate": {
             "normal": "crate",
-            "alias": ["crate", "wc"]
+            "alias": [
+                "crate",
+                "wc"
+            ]
         },
         "coinflip": {
             "normal": "cf",
-            "alias": ["cf", "coinflip", "coin", "flip"]
+            "alias": [
+                "cf",
+                "coinflip",
+                "coin",
+                "flip"
+            ]
         },
         "slots": {
             "normal": "s",
-            "alias": ["s", "slots", "slot"]
+            "alias": [
+                "s",
+                "slots",
+                "slot"
+            ]
         },
         "inv": {
             "normal": "inv",
-            "alias": ["inv", "inventory"]
+            "alias": [
+                "inv",
+                "inventory"
+            ]
         },
         "upgrade": {
             "normal": "upg",
-            "alias": ["upg", "upgrade"]
+            "alias": [
+                "upg",
+                "upgrade"
+            ]
         }
     }
-    
 }

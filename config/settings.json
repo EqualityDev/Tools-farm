@@ -264,7 +264,7 @@
         "gems": {
             "enabled": true,
             "order": {
-                "lowestToHighest": true
+                "lowestToHighest": false
             },
             "tiers": {
                 "common": true,
@@ -276,10 +276,10 @@
                 "fabled": true
             },
             "gemsToUse": {
-                "huntGem": true,
-                "empoweredGem": true,
-                "luckyGem": true,
-                "specialGem": true
+                "huntGem": false,
+                "empoweredGem": false,
+                "luckyGem": false,
+                "specialGem": false
             },
             "disable_hunts_if_no_gems": false
         },
