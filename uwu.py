@@ -597,8 +597,14 @@ def fetch_cowoncy_data():
 
         for user_id, hourly_data in user_data.items():
             color_hue = random.randint(0, 360)
+            # Cari username dari bot_instances
+            username = user_id
+            for bot in bot_instances:
+                if str(bot.user.id) == str(user_id):
+                    username = bot.user.name
+                    break
             dataset = {
-                "label": user_id,
+                "label": username,
                 "data": [hourly_data[i] for i in range(24)],
                 "borderColor": f"hsl({color_hue}, 100%, 50%)",
                 "backgroundColor": f"hsl({color_hue}, 100%, 70%)",
