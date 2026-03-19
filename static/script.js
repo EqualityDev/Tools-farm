@@ -1,5 +1,5 @@
 /*
- * script.js — OwO- Main Dashboard
+ * script.js — OwO Tools Main Dashboard
  * Handles charts, console log, and overview cards
  */
 
@@ -31,7 +31,6 @@ async function fetchData(endpoint, isJson = true) {
         }
 
         if (!res.ok) throw new Error("Request gagal: " + res.status);
-
         if (!isJson) return await res.text();
 
         const data = await res.json();
@@ -44,31 +43,70 @@ async function fetchData(endpoint, isJson = true) {
     }
 }
 
-// ── Chart defaults ───────────────────────────────────────────
-const gridColor = "rgba(102, 64, 199, 0.3)";
+// ── Chart theme ───────────────────────────────────────────────
+const ACCENT        = "#6c63ff";
+const ACCENT_LIGHT  = "#8b84ff";
+const ACCENT_DIM    = "rgba(108, 99, 255, 0.15)";
+const GRID_COLOR    = "rgba(255, 255, 255, 0.05)";
+const TEXT_COLOR    = "#a0a0be";
+const GREEN         = "#22c55e";
+const RED           = "#ef4444";
+
+// Chart.js global defaults
+Chart.defaults.color = TEXT_COLOR;
+Chart.defaults.font.family = "'Space Grotesk', sans-serif";
+Chart.defaults.font.size = 11;
 
 function baseChartOptions(extra = {}) {
     return {
         responsive: true,
         maintainAspectRatio: false,
         devicePixelRatio: 2,
-        plugins: { legend: { position: "top" } },
+        plugins: {
+            legend: {
+                position: "top",
+                labels: {
+                    color: TEXT_COLOR,
+                    boxWidth: 10,
+                    padding: 12,
+                    font: { size: 11 }
+                }
+            }
+        },
         ...extra
     };
 }
 
-function randomColors(count) {
-    return Array.from({ length: count }, () => {
-        const h = Math.floor(Math.random() * 360);
-        return `hsl(${h}, 80%, 60%)`;
-    });
+function chartScales(extra = {}) {
+    return {
+        x: {
+            grid: { color: GRID_COLOR },
+            ticks: { color: TEXT_COLOR },
+            ...extra.x
+        },
+        y: {
+            beginAtZero: true,
+            grid: { color: GRID_COLOR },
+            ticks: { color: TEXT_COLOR },
+            ...extra.y
+        }
+    };
 }
 
-// ── Console log ───────────────────────────────────────────────
+function accentColors(count) {
+    const palette = [
+        "#6c63ff", "#8b84ff", "#a89dff", "#4ade80", "#22c55e",
+        "#f59e0b", "#ef4444", "#06b6d4", "#ec4899", "#a78bfa",
+        "#34d399", "#fb923c", "#60a5fa", "#f472b6", "#e879f9"
+    ];
+    return Array.from({ length: count }, (_, i) => palette[i % palette.length]);
+}
+
+// ── Console ───────────────────────────────────────────────────
 function updateConsole(html) {
     const el = document.getElementById("messages");
     if (!el) return;
-    el.innerHTML = html || "<span style='color:#666'>Tidak ada log.</span>";
+    el.innerHTML = html || "<span style='color:#5a5a7a'>Tidak ada log.</span>";
     el.scrollTop = el.scrollHeight;
 }
 
@@ -77,13 +115,14 @@ async function loadConsole() {
     if (data !== null) updateConsole(data);
 }
 
-// ── Overview Cards ────────────────────────────────────────────
+// ── Cards ─────────────────────────────────────────────────────
 function setCard(id, value) {
     const el = document.getElementById(id);
     if (el) el.innerText = value ?? "—";
 }
 
 // ── Charts ───────────────────────────────────────────────────
+
 async function loadTotalCommandsChart() {
     const data = await fetchData("/api/fetch_cmd_data");
     if (!data) return;
@@ -101,12 +140,18 @@ async function loadTotalCommandsChart() {
             datasets: [{
                 label: "Times sent",
                 data: data.count,
-                backgroundColor: randomColors(data.count.length),
+                backgroundColor: accentColors(data.count.length),
+                borderColor: "transparent",
                 hoverOffset: 6
             }]
         },
         options: baseChartOptions({
-            plugins: { legend: { position: "left" } }
+            plugins: {
+                legend: {
+                    position: "left",
+                    labels: { color: TEXT_COLOR, boxWidth: 10, padding: 10 }
+                }
+            }
         })
     });
 }
@@ -121,29 +166,31 @@ async function loadCowoncyChart() {
     const ctx = document.getElementById("cowoncy_earnings");
     if (!ctx) return;
 
+    // Override warna dataset agar sesuai tema
+    if (data.data && data.data.datasets) {
+        const colors = accentColors(data.data.datasets.length);
+        data.data.datasets.forEach((ds, i) => {
+            ds.borderColor = colors[i];
+            ds.backgroundColor = colors[i].replace(")", ", 0.15)").replace("rgb", "rgba");
+            ds.pointBackgroundColor = colors[i];
+            ds.pointRadius = 2;
+            ds.tension = 0.3;
+        });
+    }
+
     new Chart(ctx, {
         type: "line",
         data: data.data,
         options: baseChartOptions({
-            scales: {
-                x: {
-                    type: "category",
-                    ticks: { maxRotation: 45, minRotation: 30 },
-                    grid: { color: gridColor }
-                },
-                y: {
-                    beginAtZero: true,
-                    stacked: true,
-                    ticks: { stepSize: 200 },
-                    grid: { color: gridColor }
-                }
-            }
+            scales: chartScales({
+                x: { type: "category", ticks: { maxRotation: 45, minRotation: 30 } }
+            })
         })
     });
 }
 
 function uptimeCalc(arr) {
-    if (!arr || arr.length < 2) return "00:00:00";
+    if (!arr || arr.length < 2) return "—";
     let sec = arr[1] - arr[0];
     const h = Math.floor(sec / 3600);
     const m = Math.floor((sec % 3600) / 60);
@@ -160,25 +207,26 @@ async function loadWeeklyRuntimeChart() {
     const ctx = document.getElementById("weekly_runtimes");
     if (!ctx) return;
 
+    const barColors = [
+        "rgba(108,99,255,0.9)", "rgba(108,99,255,0.8)", "rgba(108,99,255,0.7)",
+        "rgba(108,99,255,0.6)", "rgba(108,99,255,0.5)", "rgba(108,99,255,0.4)",
+        "rgba(108,99,255,0.3)"
+    ];
+
     new Chart(ctx, {
         type: "bar",
         data: {
-            labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
             datasets: [{
                 label: "Minutes Ran",
                 data: data.runtime_data,
-                backgroundColor: [
-                    "rgb(190,128,248)", "rgb(170,88,247)", "rgb(130,45,209)",
-                    "rgb(121,28,209)", "rgb(102,10,189)", "rgb(78,4,146)", "rgb(53,3,100)"
-                ]
+                backgroundColor: barColors,
+                borderColor: ACCENT,
+                borderWidth: 1,
+                borderRadius: 4
             }]
         },
-        options: baseChartOptions({
-            scales: {
-                x: { grid: { color: gridColor } },
-                y: { beginAtZero: true, grid: { color: gridColor } }
-            }
-        })
+        options: baseChartOptions({ scales: chartScales() })
     });
 }
 
@@ -193,35 +241,32 @@ async function loadGambleChart() {
         type: "line",
         data: {
             labels: [
-                "12 AM","1 AM","2 AM","3 AM","4 AM","5 AM","6 AM",
-                "7 AM","8 AM","9 AM","10 AM","11 AM",
-                "12 PM","1 PM","2 PM","3 PM","4 PM","5 PM","6 PM",
-                "7 PM","8 PM","9 PM","10 PM","11 PM"
+                "12AM","1AM","2AM","3AM","4AM","5AM","6AM",
+                "7AM","8AM","9AM","10AM","11AM",
+                "12PM","1PM","2PM","3PM","4PM","5PM","6PM",
+                "7PM","8PM","9PM","10PM","11PM"
             ],
             datasets: [
                 {
                     label: "Wins",
                     data: data.win_data,
                     fill: false,
-                    borderColor: "rgb(0,200,0)",
-                    backgroundColor: "rgb(0,200,0)",
-                    tension: 0.2
+                    borderColor: GREEN,
+                    backgroundColor: GREEN,
+                    pointRadius: 2,
+                    tension: 0.3
                 },
                 {
                     label: "Losses",
                     data: data.lose_data,
-                    borderColor: "rgb(220,53,69)",
-                    backgroundColor: "rgb(220,53,69)",
-                    tension: 0.2
+                    borderColor: RED,
+                    backgroundColor: RED,
+                    pointRadius: 2,
+                    tension: 0.3
                 }
             ]
         },
-        options: baseChartOptions({
-            scales: {
-                x: { title: { display: true, text: "Time of Day" }, grid: { color: gridColor } },
-                y: { beginAtZero: true, title: { display: true, text: "Win/Loss count" }, grid: { color: gridColor } }
-            }
-        })
+        options: baseChartOptions({ scales: chartScales() })
     });
 }
 
@@ -235,6 +280,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         loadConsole()
     ]);
 
-    // Auto-refresh console setiap 5 detik
     setInterval(loadConsole, 5000);
 });

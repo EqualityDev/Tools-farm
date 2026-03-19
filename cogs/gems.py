@@ -291,6 +291,10 @@ class Gems(commands.Cog):
         if nick not in message.content:
             return
 
+        if "already have an active" in message.content or "do not own this gem" in message.content:
+            await self.bot.log("Gem skipped: already active or not owned.", "#924444")
+            return
+
         if "caught" in message.content:
             if self.bot.user_status["no_gems"]:
                 return

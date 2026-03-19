@@ -184,7 +184,7 @@
         }
     },
     "giveawayJoiner": {
-        "enabled": true,
+        "enabled": false,
         "channelsToJoin": [
             1099453684691243098,
             1168797748343099444,
@@ -197,7 +197,7 @@
         "messageRangeToCheck": 6
     },
     "sleep": {
-        "enabled": true,
+        "enabled": false,
         "frequencyPercentage": 50,
         "checkTime": [
             10,
@@ -267,19 +267,19 @@
                 "lowestToHighest": false
             },
             "tiers": {
-                "common": true,
-                "uncommon": true,
-                "rare": true,
-                "epic": true,
-                "mythical": true,
-                "legendary": true,
-                "fabled": true
+                "common": false,
+                "uncommon": false,
+                "rare": false,
+                "epic": false,
+                "mythical": false,
+                "legendary": false,
+                "fabled": false
             },
             "gemsToUse": {
-                "huntGem": true,
-                "empoweredGem": true,
-                "luckyGem": true,
-                "specialGem": true
+                "huntGem": false,
+                "empoweredGem": false,
+                "luckyGem": false,
+                "specialGem": false
             },
             "disable_hunts_if_no_gems": false
         },
