@@ -2,7 +2,7 @@
     "debug": {
         "enabled": true,
         "logInTextFile": false,
-        "hideUser": true
+        "hideUser": false
     },
     "news": true,
     "console": {

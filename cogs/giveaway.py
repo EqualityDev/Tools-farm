@@ -84,11 +84,17 @@ class Giveaway(commands.Cog):
                                     message.components[0].children[0]
                                     and not message.components[0].children[0].disabled
                                 ):
-                                    await message.components[0].children[0].click()
-                                    await self.bot.log(
-                                        f"giveaway joined in {message.channel.name}",
-                                        "#00d7af",
-                                    )
+                                    try:
+                                        await message.components[0].children[0].click()
+                                        await self.bot.log(
+                                            f"giveaway joined in {message.channel.name}",
+                                            "#00d7af",
+                                        )
+                                    except Exception as e:
+                                        if "10004" in str(e):
+                                            pass  # Unknown Guild — skip silently
+                                        else:
+                                            await self.bot.log(f"giveaway click failed: {e}", "#ff6b6b")
 
             await self.bot.set_stat(True)
         # Set prev_time for future use
