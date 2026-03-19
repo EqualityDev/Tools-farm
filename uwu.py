@@ -236,29 +236,35 @@ def update_captcha_settings():
             content_toml = f.read()
 
         # Update nilai di TOML secara string replacement
+        import re
         if len(key_path) == 2:
             section, key = key_path
+            # Cari section dulu, lalu ganti key di dalam section itu saja
+            section_pattern = rf'(\[{re.escape(section)}\][^\[]*?){re.escape(key)} = ([^\n]+)'
             if isinstance(new_value, bool):
-                old_true = f"{key} = true"
-                old_false = f"{key} = false"
-                new_val_str = f"{key} = {'true' if new_value else 'false'}"
-                if old_true in content_toml:
-                    content_toml = content_toml.replace(old_true, new_val_str)
-                elif old_false in content_toml:
-                    content_toml = content_toml.replace(old_false, new_val_str)
-            elif isinstance(new_value, str):
-                import re
+                new_val_str = "true" if new_value else "false"
                 content_toml = re.sub(
-                    rf'{key} = ".*?"',
-                    f'{key} = "{new_value}"',
-                    content_toml
+                    section_pattern,
+                    lambda m: m.group(1) + f"{key} = {new_val_str}",
+                    content_toml,
+                    count=1,
+                    flags=re.DOTALL
+                )
+            elif isinstance(new_value, str):
+                content_toml = re.sub(
+                    section_pattern,
+                    lambda m: m.group(1) + f'{key} = "{new_value}"',
+                    content_toml,
+                    count=1,
+                    flags=re.DOTALL
                 )
             elif isinstance(new_value, int):
-                import re
                 content_toml = re.sub(
-                    rf'{key} = \d+',
-                    f'{key} = {new_value}',
-                    content_toml
+                    section_pattern,
+                    lambda m: m.group(1) + f"{key} = {new_value}",
+                    content_toml,
+                    count=1,
+                    flags=re.DOTALL
                 )
 
         with open("config/captcha.toml", "w") as f:
