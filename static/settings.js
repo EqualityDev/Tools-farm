@@ -41,6 +41,9 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
         if (btn.dataset.tab === "tokens") {
             loadTokens();
         }
+        if (btn.dataset.tab === "commands") {
+            renderCustomCommands();
+        }
     });
 });
 
@@ -168,7 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         apiGet("/api/misc")
     ]);
 
-    if (s) { settingsData = s.data; renderCommands(); renderGamble(); renderOther(); renderGems(); }
+    if (s) { settingsData = s.data; renderCommands(); renderGamble(); renderOther(); renderGems(); renderCustomCommands(); }
     if (g) { globalData = g.data; renderGlobalToggles(); renderCaptcha(); renderBattery(); }
     if (c) { channelData = c; renderChannels(); }
     if (cs) { captchaSettings = cs.data; renderCaptchaSolver(); }
@@ -976,6 +979,110 @@ async function saveCaptchaNum(uid, path) {
     await patchCaptcha(path, val);
 }
 
+
+
+// ═══════════════════════════════════════════════════════════
+// CUSTOM COMMANDS
+// ═══════════════════════════════════════════════════════════
+function renderCustomCommands() {
+    const container = document.getElementById("custom-commands-container");
+    if (!container || !settingsData) return;
+    container.innerHTML = "";
+
+    const cmds = settingsData.customCommands?.commands || [];
+
+    if (cmds.length === 0) {
+        container.innerHTML = "<p class='hint'>Belum ada custom command.</p>";
+        return;
+    }
+
+    cmds.forEach((cmd, idx) => {
+        const card = document.createElement("div");
+        card.className = "cmd-card";
+        const uid = "cc_enabled_" + idx;
+        card.innerHTML = `
+            <div class="setting-row" style="border-bottom:1px solid var(--border); padding-bottom:10px;">
+                <div class="setting-info">
+                    <span class="setting-label">Command ${idx + 1}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <label class="toggle">
+                        <input type="checkbox" id="${uid}" ${cmd.enabled ? "checked" : ""}>
+                        <span class="slider"></span>
+                    </label>
+                    <button class="btn-danger" onclick="removeCustomCommand(${idx})">✕</button>
+                </div>
+            </div>
+            <div class="cmd-extra-row">
+                <span class="setting-desc">Command</span>
+                <div class="input-group" style="flex:1; margin-left:8px;">
+                    <input type="text" class="text-input" id="cc_cmd_${idx}" value="${cmd.command}" placeholder="owo command...">
+                    <button class="btn-save" onclick="saveCustomCommandText(${idx})">Save</button>
+                </div>
+            </div>
+            <div class="cmd-extra-row">
+                <span class="setting-desc">Cooldown (detik)</span>
+                <div class="input-group">
+                    <input type="number" class="num-input" id="cc_cd_${idx}" value="${cmd.cooldown}" min="1">
+                    <button class="btn-save" onclick="saveCustomCommandCooldown(${idx})">Save</button>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+        document.getElementById(uid).addEventListener("change", function() {
+            patchSettings(["customCommands", "commands", idx, "enabled"], this.checked);
+        });
+    });
+}
+
+async function saveCustomCommandText(idx) {
+    const val = document.getElementById(`cc_cmd_${idx}`).value.trim();
+    if (!val) return showToast("Command tidak boleh kosong", "error");
+    await patchSettings(["customCommands", "commands", idx, "command"], val);
+}
+
+async function saveCustomCommandCooldown(idx) {
+    const val = parseInt(document.getElementById(`cc_cd_${idx}`).value);
+    if (isNaN(val) || val < 1) return showToast("Cooldown tidak valid", "error");
+    await patchSettings(["customCommands", "commands", idx, "cooldown"], val);
+}
+
+async function removeCustomCommand(idx) {
+    if (!confirm("Hapus command ini?")) return;
+    const cmds = settingsData.customCommands.commands;
+    cmds.splice(idx, 1);
+    const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", password },
+        body: JSON.stringify({ path: ["customCommands", "commands"], value: cmds })
+    });
+    const json = await res.json();
+    if (json.status === "success") {
+        showToast("✅ Command dihapus!", "success");
+        settingsData.customCommands.commands = cmds;
+        renderCustomCommands();
+    } else {
+        showToast("❌ Gagal: " + json.message, "error");
+    }
+}
+
+async function addCustomCommand() {
+    const cmds = settingsData.customCommands?.commands || [];
+    cmds.push({ enabled: true, command: "owo new command", cooldown: 5 });
+    const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", password },
+        body: JSON.stringify({ path: ["customCommands", "commands"], value: cmds })
+    });
+    const json = await res.json();
+    if (json.status === "success") {
+        showToast("✅ Command ditambahkan!", "success");
+        settingsData.customCommands.commands = cmds;
+        renderCustomCommands();
+    } else {
+        showToast("❌ Gagal: " + json.message, "error");
+    }
+}
 
 // ═══════════════════════════════════════════════════════════
 // GEM SETTINGS

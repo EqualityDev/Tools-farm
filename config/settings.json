@@ -267,19 +267,19 @@
                 "lowestToHighest": true
             },
             "tiers": {
-                "common": true,
-                "uncommon": true,
-                "rare": true,
-                "epic": true,
-                "mythical": true,
-                "legendary": true,
-                "fabled": true
+                "common": false,
+                "uncommon": false,
+                "rare": false,
+                "epic": false,
+                "mythical": false,
+                "legendary": false,
+                "fabled": false
             },
             "gemsToUse": {
-                "huntGem": true,
-                "empoweredGem": true,
-                "luckyGem": true,
-                "specialGem": true
+                "huntGem": false,
+                "empoweredGem": false,
+                "luckyGem": false,
+                "specialGem": false
             },
             "disable_hunts_if_no_gems": false
         },
@@ -291,7 +291,7 @@
         "commands": [
             {
                 "enabled": true,
-                "command": "custom command 1",
+                "command": "wpiku",
                 "cooldown": 2
             },
             {
