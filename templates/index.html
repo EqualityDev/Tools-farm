@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OwO Tools — Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#b5651d">
+    <meta name="theme-color" content="#6c63ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="OwO Tools">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/static/service-worker.js');
@@ -33,7 +33,7 @@
 
         <!-- Overview Cards -->
         <div class="section-area" style="height:auto;">
-            <h2>⚙ Overview</h2>
+            <h2>Overview</h2>
             <div class="cards-area">
                 <div class="cards-wrapper">
                     <div class="card">
@@ -44,7 +44,7 @@
                     <div class="card">
                         <div class="card-label">⏱ Uptime</div>
                         <div class="card-number" id="total_uptime_card">—</div>
-                        <div class="card-note">Uptime Hari Ini</div>
+                        <div class="card-note">Hari Ini</div>
                     </div>
                     <div class="card">
                         <div class="card-label">🚀 Commands</div>
@@ -54,7 +54,7 @@
                     <div class="card">
                         <div class="card-label">🛡 Captchas</div>
                         <div class="card-number" id="total_captchas_card">—</div>
-                        <div class="card-note">Total Diselesaikan</div>
+                        <div class="card-note">Diselesaikan</div>
                     </div>
                 </div>
             </div>
@@ -63,11 +63,11 @@
         <!-- Console + Total Commands -->
         <div class="multi-items">
             <div class="section-area">
-                <h2>⚙ Activity Console</h2>
+                <h2>Activity Console</h2>
                 <div id="messages" class="messages"></div>
             </div>
             <div class="section-area">
-                <h2>⚙ Total Commands Sent</h2>
+                <h2>Total Commands Sent</h2>
                 <div class="section-area-scroll">
                     <canvas id="total_commands"></canvas>
                 </div>
@@ -76,7 +76,7 @@
 
         <!-- Cowoncy Earnings -->
         <div class="section-area">
-            <h2>⚙ Cowoncy Earnings</h2>
+            <h2>Cowoncy Earnings</h2>
             <div class="section-area-scroll">
                 <canvas id="cowoncy_earnings"></canvas>
             </div>
@@ -84,7 +84,7 @@
 
         <!-- Weekly Runtime -->
         <div class="section-area">
-            <h2>⚙ Weekly Runtime</h2>
+            <h2>Weekly Runtime</h2>
             <div class="section-area-scroll">
                 <canvas id="weekly_runtimes"></canvas>
             </div>
@@ -92,7 +92,7 @@
 
         <!-- Gamble Winrates -->
         <div class="section-area">
-            <h2>⚙ Gamble Winrates</h2>
+            <h2>Gamble Winrates</h2>
             <div class="section-area-scroll">
                 <canvas id="gamble_earnings"></canvas>
             </div>

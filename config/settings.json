@@ -221,7 +221,7 @@
         ]
     },
     "autoDaily": true,
-    "cashCheck": true,
+    "cashCheck": false,
     "defaultCooldowns": {
         "longCooldown": [
             400,
@@ -276,10 +276,10 @@
                 "fabled": true
             },
             "gemsToUse": {
-                "huntGem": false,
-                "empoweredGem": false,
-                "luckyGem": false,
-                "specialGem": false
+                "huntGem": true,
+                "empoweredGem": true,
+                "luckyGem": true,
+                "specialGem": true
             },
             "disable_hunts_if_no_gems": false
         },

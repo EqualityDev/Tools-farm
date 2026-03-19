@@ -6,7 +6,7 @@
     <title>OwO Tools — Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#b5651d">
+    <meta name="theme-color" content="#6c63ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="OwO Tools">
     <script>
@@ -34,12 +34,11 @@
         <div id="toast" class="toast hidden"></div>
 
         <!-- Tab Bar -->
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px;">
-            <div class="tab-bar">
-            <button class="tab-btn active" data-tab="channels">📡 Channels & Webhook</button>
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="channels">📡 Channels</button>
             <button class="tab-btn" data-tab="commands">⚔️ Commands</button>
-            <button class="tab-btn" data-tab="global">🌐 Global Settings</button>
-            <button class="tab-btn" data-tab="console">📋 Console Logs</button>
+            <button class="tab-btn" data-tab="global">🌐 Global</button>
+            <button class="tab-btn" data-tab="console">📋 Console</button>
             <button class="tab-btn" data-tab="tokens">🔑 Tokens</button>
         </div>
 
@@ -47,7 +46,7 @@
         <div id="tab-channels" class="tab-content active">
 
             <div class="section-area" style="height:auto;">
-                <h2>⚙ Webhook</h2>
+                <h2>Webhook</h2>
                 <div class="setting-row">
                     <div class="setting-info">
                         <span class="setting-label">Enable Webhook</span>
@@ -100,8 +99,8 @@
                 </div>
             </div>
 
-            <div class="section-area" style="height:auto; margin-top:14px;">
-                <h2>⚙ Animal Log</h2>
+            <div class="section-area" style="height:auto; margin-top:12px;">
+                <h2>Animal Log</h2>
                 <div class="setting-row">
                     <div class="setting-info">
                         <span class="setting-label">Enable Animal Log</span>
@@ -137,9 +136,9 @@
                 </div>
             </div>
 
-            <div class="section-area" style="height:auto; margin-top:14px;">
+            <div class="section-area" style="height:auto; margin-top:12px;">
                 <div class="section-header-row">
-                    <h2>⚙ Channel Switcher</h2>
+                    <h2>Channel Switcher</h2>
                     <label class="toggle">
                         <input type="checkbox" id="channelSwitcher-enabled">
                         <span class="slider"></span>
@@ -161,7 +160,7 @@
                 <div id="users-container"></div>
                 <button class="btn-add" onclick="addUser()">＋ Add User</button>
                 <div style="margin-top:12px;">
-                    <button class="btn-primary" onclick="saveChannels()">💾 Save All Channel Settings</button>
+                    <button class="btn-primary" onclick="saveChannels()">💾 Save All</button>
                 </div>
             </div>
         </div>
@@ -169,20 +168,19 @@
         <!-- Tab 2: Commands -->
         <div id="tab-commands" class="tab-content hidden">
             <div class="section-area" style="height:auto;">
-                <h2>⚔️ Commands</h2>
+                <h2>Commands</h2>
                 <p class="hint">Toggle ON/OFF. Perubahan tersimpan otomatis.</p>
                 <div id="commands-container"></div>
             </div>
-            <div class="section-area" style="height:auto; margin-top:14px;">
-                <h2>🎰 Gamble</h2>
+            <div class="section-area" style="height:auto; margin-top:12px;">
+                <h2>Gamble</h2>
                 <div id="gamble-container"></div>
             </div>
-            <div class="section-area" style="height:auto; margin-top:14px;">
-                <h2>🔧 Other Features</h2>
+            <div class="section-area" style="height:auto; margin-top:12px;">
+                <h2>Other Features</h2>
                 <div id="other-container"></div>
             </div>
-
-            <div class="section-area" style="height:auto; margin-top:14px;">
+            <div class="section-area" style="height:auto; margin-top:12px;">
                 <h2>💎 Gem Settings</h2>
                 <div id="gems-container"></div>
             </div>
@@ -191,63 +189,59 @@
         <!-- Tab 3: Global Settings -->
         <div id="tab-global" class="tab-content hidden">
             <div class="section-area" style="height:auto;">
-                <h2>🌐 Global Toggles</h2>
+                <h2>Global Toggles</h2>
                 <div id="global-toggles-container"></div>
             </div>
-            <div class="section-area" style="height:auto; margin-top:14px;">
-                <h2>🔔 Captcha Notifications</h2>
+            <div class="section-area" style="height:auto; margin-top:12px;">
+                <h2>Captcha Notifications</h2>
                 <div id="captcha-container"></div>
             </div>
-            <div class="section-area" style="height:auto; margin-top:14px;">
-                <h2>🔋 Battery Check</h2>
+            <div class="section-area" style="height:auto; margin-top:12px;">
+                <h2>Battery Check</h2>
                 <div id="battery-container"></div>
             </div>
-
-            <div class="section-area" style="height:auto; margin-top:14px;">
-                <h2>🤖 Captcha Solver</h2>
+            <div class="section-area" style="height:auto; margin-top:12px;">
+                <h2>Captcha Solver</h2>
                 <div id="captcha-solver-container"></div>
             </div>
-
-            <div class="section-area" style="height:auto; margin-top:14px;">
-                <h2>⚙ Misc Settings</h2>
+            <div class="section-area" style="height:auto; margin-top:12px;">
+                <h2>Misc Settings</h2>
                 <div id="misc-container"></div>
-            </div>
-        </div>
-
-        <!-- Tab 5: Tokens -->
-        <div id="tab-tokens" class="tab-content hidden">
-            <div class="section-area" style="height:auto;">
-                <h2>🔑 Token Management</h2>
-                <p class="hint">⚠️ Token bersifat sensitif. Perubahan berlaku setelah bot restart.</p>
-                <div id="tokens-container"></div>
-                <div class="section-area" style="height:auto; margin-top:14px; border-style:dashed;">
-                    <h2>➕ Tambah Token</h2>
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <span class="setting-label">Token Discord</span>
-                            <span class="setting-desc">Token akun Discord</span>
-                        </div>
-                        <input type="text" class="text-input" id="new-token" placeholder="Token Discord...">
-                    </div>
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <span class="setting-label">Channel ID</span>
-                            <span class="setting-desc">ID channel untuk bot</span>
-                        </div>
-                        <input type="number" class="num-input" style="width:180px;" id="new-channel-id" placeholder="Channel ID">
-                    </div>
-                    <div style="margin-top:12px;">
-                        <button class="btn-primary" onclick="addToken()">➕ Tambah Token</button>
-                    </div>
-                </div>
             </div>
         </div>
 
         <!-- Tab 4: Console Logs -->
         <div id="tab-console" class="tab-content hidden">
             <div class="section-area" style="height:auto; min-height:400px;">
-                <h2>📋 Activity Console</h2>
+                <h2>Activity Console</h2>
                 <div id="console-messages" class="messages" style="max-height:500px;"></div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Tokens -->
+        <div id="tab-tokens" class="tab-content hidden">
+            <div class="section-area" style="height:auto;">
+                <h2>Token Management</h2>
+                <p class="hint">⚠️ Token bersifat sensitif. Perubahan berlaku setelah bot restart.</p>
+                <div id="tokens-container"></div>
+                <div class="section-area" style="height:auto; margin-top:12px; border-style:dashed;">
+                    <h2>Tambah Token</h2>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-label">Token Discord</span>
+                        </div>
+                        <input type="text" class="text-input" id="new-token" placeholder="Token Discord...">
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <span class="setting-label">Channel ID</span>
+                        </div>
+                        <input type="number" class="num-input" style="width:180px;" id="new-channel-id" placeholder="Channel ID">
+                    </div>
+                    <div style="margin-top:12px;">
+                        <button class="btn-primary" onclick="addToken()">＋ Tambah Token</button>
+                    </div>
+                </div>
             </div>
         </div>
 
