@@ -89,7 +89,7 @@
         },
         "cookie": {
             "enabled": true,
-            "userid": 408785106942164992,
+            "userid": 0,
             "pingUser": false
         },
         "shop": {
@@ -197,7 +197,7 @@
         "messageRangeToCheck": 6
     },
     "sleep": {
-        "enabled": false,
+        "enabled": true,
         "frequencyPercentage": 50,
         "checkTime": [
             10,
@@ -276,10 +276,10 @@
                 "fabled": false
             },
             "gemsToUse": {
-                "huntGem": false,
-                "empoweredGem": false,
-                "luckyGem": false,
-                "specialGem": false
+                "huntGem": true,
+                "empoweredGem": true,
+                "luckyGem": true,
+                "specialGem": true
             },
             "disable_hunts_if_no_gems": false
         },
@@ -290,7 +290,7 @@
         "enabled": false,
         "commands": [
             {
-                "enabled": true,
+                "enabled": false,
                 "command": "wpiku",
                 "cooldown": 2
             },

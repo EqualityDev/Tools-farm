@@ -9,3 +9,4 @@ debian-binary
 numpy_extract/
 -H
 -d
+utils/stats.json
