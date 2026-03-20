@@ -144,6 +144,42 @@ Kirim pesan di channel bot:
 
 ---
 
+## 📸 Screenshots
+
+<div align="center">
+
+### Dashboard
+
+
+![Dashboard](static/imgs/screenshots/dashboard.jpg)
+
+
+
+### Commands Settings
+
+
+![Commands](static/imgs/screenshots/commands.jpg)
+
+
+
+### Global Settings
+
+
+![Global](static/imgs/screenshots/global.jpg)
+
+
+
+### Token Management
+
+
+![Tokens](static/imgs/screenshots/tokens.jpg)
+
+
+
+</div>
+
+---
+
 ## 🙏 Credits
 
 - Bot original: [owo-dusk](https://github.com/owo-dusk/owo-dusk) by **EchoQuill**
