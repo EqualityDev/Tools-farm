@@ -1382,6 +1382,7 @@ class MyClient(commands.Bot):
             "shop": commands_dict["shop"]["enabled"],
             "slots": self.settings_dict["gamble"]["slots"]["enabled"],
             "customcommands": self.settings_dict["customCommands"]["enabled"],
+            "meta": True,
         }
 
     """To make the code cleaner when accessing cooldowns from config."""
