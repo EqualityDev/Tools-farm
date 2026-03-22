@@ -14,7 +14,8 @@ DB_PATH         = "utils/data/db.sqlite"
 TRIGGER_SCAN     = "meta scan"     # scan zoo → rekomendasi team
 TRIGGER_WEAPONS  = "meta weapons"  # scan weapon inventory
 TRIGGER_TEMPLATE = "meta template" # ambil meta template NeonUtil
-TRIGGER_APPLY    = "meta apply"    # terapkan rekomendasi terakhir ke team
+TRIGGER_APPLY        = "meta apply"         # terapkan rekomendasi team
+TRIGGER_WEAPON_APPLY = "meta weapon apply"  # equip weapon terbaik ke team
 
 # Scoring weights per role
 ATTACKER_W = {"str": 2.5, "mag": 1.5, "wp": -0.3, "hp": 0.2, "pr": 0.1, "mr": 0.1}
@@ -46,6 +47,52 @@ META_TEMPLATES = {
     "rd_new":          "discharge_rstall_2025",
     "frstaff":         "Fstaff-Rstaff",
 }
+
+
+# ─── Weapon Passive Scoring ──────────────────────────────────────────────────
+PASSIVE_SCORES = {
+    "rsac": ("tank", 10), "esac": ("tank", 10), "msac": ("tank", 10),
+    "rrstaff": ("tank", 9), "mrstaff": ("tank", 9), "prstaff": ("tank", 8),
+    "mshield": ("tank", 8), "eshield": ("tank", 7), "rshield": ("tank", 6), "ushield": ("tank", 5),
+    "ehp": ("tank", 5), "rhp": ("tank", 4), "chp": ("tank", 3),
+    "ethorns": ("tank", 4), "rthorns": ("tank", 3),
+    "emr": ("tank", 3), "rmr": ("tank", 2), "mmr": ("tank", 2),
+    "ecrune": ("support", 10), "mcrune": ("support", 10),
+    "rcrune": ("support", 8), "ucrune": ("support", 6), "ccrune": ("support", 4),
+    "rhealstaff": ("support", 8), "phealstaff": ("support", 8), "uhealstaff": ("support", 6),
+    "ewp": ("support", 5), "rwp": ("support", 4), "cwp": ("support", 3),
+    "elifesteal": ("support", 4), "rlifesteal": ("support", 3),
+    "emanatap": ("support", 5), "rmanatap": ("support", 4), "umanatap": ("support", 3),
+    "esythe": ("attacker", 10), "rsythe": ("attacker", 8), "usythe": ("attacker", 6),
+    "egslay": ("attacker", 8), "rgslay": ("attacker", 6),
+    "eawand": ("attacker", 8), "rawand": ("attacker", 7),
+    "edstrike": ("attacker", 7), "rdstrike": ("attacker", 6),
+    "eenrage": ("attacker", 5), "renrage": ("attacker", 4),
+    "eswarm": ("attacker", 4), "rswarm": ("attacker", 3),
+    "ekkaze": ("attacker", 5), "rkkaze": ("attacker", 4), "ukkaze": ("attacker", 3),
+    "esafeguard": ("any", 3), "rsafeguard": ("any", 2), "usafeguard": ("any", 2),
+    "cabsolve": ("any", 2), "eabsolve": ("any", 3), "cadapt": ("any", 2),
+}
+
+def score_weapon_for_role(weapon, role):
+    passives = weapon.get("passives", [])
+    if isinstance(passives, str):
+        import json as _j
+        try: passives = _j.loads(passives)
+        except: passives = []
+    score = 0
+    for p in passives:
+        p_lower = p.lower()
+        for key, (p_role, p_score) in PASSIVE_SCORES.items():
+            if key in p_lower:
+                if p_role == role or p_role == "any":
+                    score += p_score
+                else:
+                    score -= 1
+                break
+    quality = weapon.get("quality", 0)
+    score += (quality / 100) * 5
+    return round(score, 2)
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -134,6 +181,10 @@ class Meta(commands.Cog):
         self.weapon_scanning = False
         self.weapon_dump_until = 0.0
         self.weapon_all = []
+        self.weapon_applying = False
+        self._wep_waiting    = False
+        self._wep_success    = False
+        self._wep_keywords   = []
 
         # Template state
         self.template_pending = False
@@ -460,6 +511,142 @@ class Meta(commands.Cog):
 
         await self.bot.log("🎉 Team berhasil diapply!", "#22c55e")
 
+
+    # ── Auto Weapon Apply ─────────────────────────────────────────────────────
+
+    async def apply_weapons(self):
+        """
+        Equip weapon terbaik ke tiap animal di team berdasarkan role.
+        Flow: unequip lama → tunggu response OwO → equip baru → tunggu response → next slot
+        """
+        if self.weapon_applying:
+            await self.bot.log("⚠️ Weapon apply sudah berjalan.", "#924444")
+            return
+        if not self.last_recommendation:
+            await self.bot.log(
+                "❌ Belum ada rekomendasi. Jalankan 'meta scan' dulu.", "#924444"
+            )
+            return
+
+        self.weapon_applying = True
+        rec = self.last_recommendation
+
+        rows = await db_fetch("SELECT * FROM weapon_inventory")
+        if not rows:
+            await self.bot.log(
+                "❌ Weapon DB kosong. Jalankan 'meta weapons' dulu.", "#924444"
+            )
+            self.weapon_applying = False
+            return
+
+        weapons = [dict(r) for r in rows]
+
+        role_map = {
+            rec["attacker"]: "attacker",
+            rec["support"]:  "support",
+            rec["tank"]:     "tank",
+        }
+
+        def best_weapon_for(role, exclude_ids=None):
+            exclude_ids = exclude_ids or []
+            candidates = [w for w in weapons if w["weapon_id"] not in exclude_ids]
+            if not candidates:
+                return None
+            return max(candidates, key=lambda w: score_weapon_for_role(w, role))
+
+        used_ids = []
+        assignments = {}
+        for animal_name, role in role_map.items():
+            best = best_weapon_for(role, exclude_ids=used_ids)
+            if best:
+                assignments[animal_name] = best
+                used_ids.append(best["weapon_id"])
+
+        preview = "\n".join(
+            f"  [{role_map[a]}] {a} → {w['name']} ({w['weapon_id']}) "
+            f"| {w['quality']}% | score: {score_weapon_for_role(w, role_map[a])}"
+            for a, w in assignments.items()
+        )
+        await self.bot.log(
+            f"⚔️ Weapon plan:\n{preview}\n⏳ Applying...",
+            "#6c63ff",
+        )
+
+        prefix = self.bot.settings_dict["setprefix"]
+
+        async def send_and_wait(cmd, success_keywords, timeout=10):
+            """
+            Kirim command weapon, tunggu response OwO yang mengandung keyword sukses.
+            Returns True kalau sukses, False kalau timeout.
+            """
+            self._wep_waiting = True
+            self._wep_success = False
+            self._wep_keywords = success_keywords
+
+            await self.bot.send(f"{prefix}weapon {cmd}")
+
+            # Tunggu sampai on_message detect response, max timeout detik
+            for _ in range(timeout * 2):
+                await asyncio.sleep(0.5)
+                if not self._wep_waiting:
+                    break
+
+            # Extra jeda biar OwO tidak rate limit — weapon basecd di misc.json = 1s
+            # tambah random 2-4s untuk keamanan
+            await asyncio.sleep(self.bot.random.uniform(2.5, 4.0))
+            return self._wep_success
+
+        # Per slot: unequip lama dulu, baru equip baru
+        for animal_name, weapon in assignments.items():
+            role = role_map[animal_name]
+            await self.bot.log(
+                f"🔄 Slot {role}: {animal_name}", "#a0a0be"
+            )
+
+            # Cek apakah ada weapon lama di DB untuk animal ini
+            old_rows = await db_fetch(
+                "SELECT weapon_id, name FROM weapon_inventory WHERE equipped_to = ?",
+                (animal_name,)
+            )
+            for old_row in old_rows:
+                old_id = old_row["weapon_id"]
+                if old_id == weapon["weapon_id"]:
+                    continue  # sama, skip
+                ok = await send_and_wait(
+                    f"unequip {old_id}",
+                    ["no longer wielding", "unequipped", "removed"],
+                )
+                if ok:
+                    await self.bot.log(f"  🗑️ Unequip {old_id}", "#a0a0be")
+                    await db_exec(
+                        "UPDATE weapon_inventory SET equipped_to = '' WHERE weapon_id = ?",
+                        (old_id,)
+                    )
+                else:
+                    await self.bot.log(f"  ⚠️ Unequip {old_id} timeout, lanjut...", "#924444")
+
+            # Equip weapon baru
+            ok = await send_and_wait(
+                f"{weapon['weapon_id']} {animal_name}",
+                ["is now wielding", "now wielding"],
+            )
+            if ok:
+                await self.bot.log(
+                    f"  ✅ Equip {weapon['name']} → {animal_name}", "#22c55e"
+                )
+                await db_exec(
+                    "UPDATE weapon_inventory SET equipped_to = ? WHERE weapon_id = ?",
+                    (animal_name, weapon["weapon_id"])
+                )
+            else:
+                await self.bot.log(
+                    f"  ⚠️ Equip {weapon['name']} timeout/gagal", "#924444"
+                )
+
+        self.weapon_applying = False
+        self._wep_waiting = False
+        await self.bot.log("🎉 Weapon apply selesai!", "#22c55e")
+
     # ── Weapon Scan ───────────────────────────────────────────────────────────
 
     async def start_weapon_scan(self):
@@ -719,6 +906,26 @@ class Meta(commands.Cog):
                 if content == TRIGGER_APPLY:
                     asyncio.create_task(self.apply_team())
                     return
+                if content == TRIGGER_WEAPON_APPLY:
+                    asyncio.create_task(self.apply_weapons())
+                    return
+
+            # ── OwO weapon command response ───────────────────────────────────
+            if (
+                self._wep_waiting
+                and message.author.id == self.bot.owo_bot_id
+                and message.content
+            ):
+                content_lower = message.content.lower()
+                if any(k in content_lower for k in self._wep_keywords):
+                    self._wep_waiting = False
+                    self._wep_success = True
+                elif any(k in content_lower for k in [
+                    "slow down", "rate limit", "too fast", "cooldown"
+                ]):
+                    self._wep_waiting = False
+                    self._wep_success = False
+                    await self.bot.log("⏱ OwO rate limit weapon, tunggu...", "#924444")
 
             # ── OwO zoo response ──────────────────────────────────────────────
             if (
