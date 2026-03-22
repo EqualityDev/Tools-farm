@@ -1,7 +1,6 @@
 <div align="center">
 
 # ⚙ OwO Tools
-
 **Bot Discord selfbot dengan web dashboard steampunk untuk mengelola OwO Bot secara otomatis.**
 
 [![Stars](https://img.shields.io/github/stars/EqualityDev/Tools-farm?style=flat&color=b5651d)](https://github.com/EqualityDev/Tools-farm/stargazers)
@@ -101,7 +100,7 @@ Config dan token otomatis preserved setelah update.
 - Toggle coinflip, slots, blackjack
 - Edit nilai, multiplier, cooldown
 
-### 🌐 Global Settings  
+### 🌐 Global Settings
 - Typing indicator, offline status, battery check
 - Captcha notifications (vibrate, TTS, audio)
 - Captcha solver (image solver gratis + hCaptcha berbayar)
@@ -118,6 +117,27 @@ Config dan token otomatis preserved setelah update.
 ### ⚙️ Misc
 - Host mode (untuk VPS/server)
 - Debug & console settings
+
+### 🧠 Meta Optimizer (`cogs/meta.py`)
+Auto team optimizer dan weapon manager untuk battle OwO. Menggunakan [NeonUtil](https://neonutil.com) API untuk stats animal.
+
+Ketik di channel bot (dari akun sendiri):
+
+| Perintah | Fungsi |
+|----------|--------|
+| `meta scan` | Scan zoo → fetch stats semua animal via `neonutil.com/zoo-stats` → rekomendasi team terbaik (Attacker/Support/Tank) |
+| `meta apply` | Terapkan rekomendasi ke team otomatis (remove → add per slot, tunggu response OwO) |
+| `meta weapons` | Scan full weapon inventory semua halaman via WebSocket intercept + Discord Interactions API |
+| `meta weapon apply` | Auto-equip weapon terbaik ke tiap slot berdasarkan passive scoring |
+| `meta template` | Ambil template meta team dari NeonUtil (contoh: rstaff_pruption) |
+
+**Alur penggunaan:**
+```
+meta scan         → lihat rekomendasi team
+meta apply        → terapkan team
+meta weapons      → scan semua weapon
+meta weapon apply → equip weapon terbaik
+```
 
 ---
 
@@ -150,31 +170,19 @@ Kirim pesan di channel bot:
 
 ### Dashboard
 
-
 ![Dashboard](static/imgs/screenshots/dashboard.jpg)
-
-
 
 ### Commands Settings
 
-
 ![Commands](static/imgs/screenshots/commands.jpg)
-
-
 
 ### Global Settings
 
-
 ![Global](static/imgs/screenshots/global.jpg)
-
-
 
 ### Token Management
 
-
 ![Tokens](static/imgs/screenshots/tokens.jpg)
-
-
 
 </div>
 
