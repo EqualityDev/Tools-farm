@@ -362,26 +362,103 @@ class Meta(commands.Cog):
         await self.bot.send(
             self.bot.settings_dict["setprefix"] + self.bot.alias["zoo"]["normal"]
         )
+        # Zoo response akan di-handle di on_message → _after_zoo_parsed
+        # yang sekarang pakai HTTP ke neonutil.com/zoo-stats bukan neond
 
     async def _after_zoo_parsed(self):
-        to_query = []
+        import aiohttp as _aio
+
+        # Cek cache dulu
+        to_fetch = []
         for name in self.zoo_animals:
             cached = await self.get_cached_animal(name)
             if cached:
                 self.scan_results[name] = {**cached, **self.zoo_animals[name]}
             else:
-                to_query.append(name)
-        cached_count = len(self.zoo_animals) - len(to_query)
+                to_fetch.append(name)
+
+        cached_count = len(self.zoo_animals) - len(to_fetch)
         await self.bot.log(
             f"📋 Zoo: {len(self.zoo_animals)} animal | "
-            f"{cached_count} cache | {len(to_query)} query NeonUtil",
+            f"{cached_count} cache | {len(to_fetch)} fetch dari neonutil.com",
             "#6c63ff",
         )
-        if to_query:
-            self.pending_queries = to_query
-            await self._query_next()
-        else:
+
+        if not to_fetch:
             await self._run_optimizer()
+            return
+
+        # Satu HTTP request untuk semua animal sekaligus
+        # Format response: [name, has_img, emoji_id, [aliases], rank, [hp,str,mag,wp,pr,mr]]
+        try:
+            q = ",".join(to_fetch)
+            async with _aio.ClientSession() as session:
+                async with session.get(
+                    "https://neonutil.com/zoo-stats",
+                    params={"q": q},
+                    timeout=_aio.ClientTimeout(total=15),
+                ) as resp:
+                    if resp.status != 200:
+                        await self.bot.log(
+                            f"⚠️ zoo-stats HTTP {resp.status}, fallback ke neond...",
+                            "#924444",
+                        )
+                        self.pending_queries = to_fetch
+                        await self._query_next()
+                        return
+                    data = await resp.json(content_type=None)
+
+            parsed = 0
+            for item in data:
+                try:
+                    # [name, has_img, emoji_id, aliases, rank, [hp,str,mag,wp,pr,mr]]
+                    name     = item[0]
+                    rank     = item[4] if len(item) > 4 else ""
+                    stats_arr = item[5] if len(item) > 5 else []
+
+                    if len(stats_arr) < 6:
+                        continue
+
+                    # Determine role from stats (sama dengan logic score)
+                    stats = {
+                        "name": name, "rank": rank,
+                        "hp":  stats_arr[0], "str": stats_arr[1],
+                        "mag": stats_arr[2], "wp":  stats_arr[3],
+                        "pr":  stats_arr[4], "mr":  stats_arr[5],
+                        "total": sum(stats_arr),
+                        "class": "", "role": "unknown",
+                    }
+                    # Auto-assign role dari stats
+                    atk_score  = score_animal(stats, ATTACKER_W)
+                    sup_score  = score_animal(stats, SUPPORT_W)
+                    tank_score = score_animal(stats, TANK_W)
+                    best = max(atk_score, sup_score, tank_score)
+                    if best == atk_score:  stats["role"] = "attacker"
+                    elif best == sup_score: stats["role"] = "support"
+                    else:                  stats["role"] = "tank"
+
+                    await self.save_animal_stats(stats, rank)
+                    self.scan_results[name] = {
+                        **stats, **self.zoo_animals.get(name, {})
+                    }
+                    parsed += 1
+                except Exception:
+                    continue
+
+            await self.bot.log(
+                f"✅ {parsed} animal stats dari neonutil.com/zoo-stats",
+                "#22c55e",
+            )
+
+        except Exception as e:
+            await self.bot.log(
+                f"⚠️ HTTP error: {e} — fallback ke neond...", "#924444"
+            )
+            self.pending_queries = to_fetch
+            await self._query_next()
+            return
+
+        await self._run_optimizer()
 
     async def _query_next(self):
         if self.stopped or not self.pending_queries:
