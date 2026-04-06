@@ -1,5 +1,6 @@
 #!/bin/bash
-cd /storage/emulated/0/Tools-farm
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR" || exit 1
 
 echo "⚙ OwO Tools - Auto Restart Wrapper"
 echo "Tekan Ctrl+C untuk berhenti sepenuhnya"

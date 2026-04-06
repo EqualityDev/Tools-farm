@@ -142,7 +142,10 @@ def write_json(path, data, lock):
 
 # ── Auth helper ──────────────────────────────────────────────
 def check_password(req):
-    pw = req.headers.get("password") or req.json.get("password") if req.is_json else req.headers.get("password")
+    pw = req.headers.get("password")
+    if not pw and req.is_json:
+        data = req.get_json(silent=True) or {}
+        pw = data.get("password")
     return pw == global_settings_dict["website"]["password"]
 
 
@@ -186,6 +189,8 @@ def toggle_cog():
 
 @app.route("/api/debug", methods=["GET"])
 def debug():
+    if not check_password(request):
+        return "Invalid Password", 401
     return jsonify({
         "bot_instances": len(bot_instances),
         "bot_loop": str(bot_loop),

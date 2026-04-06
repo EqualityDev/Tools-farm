@@ -1,0 +1,118 @@
+{
+    "typingIndicator": true,
+    "silentTextMessages": false,
+    "offlineStatus": false,
+    "batteryCheck": {
+        "enabled": false,
+        "minPercentage": 20,
+        "refreshInterval": 60
+    },
+    "captcha": {
+        "openCaptchaWebsite": true,
+        "stopCodeIfFailedToSolve": true,
+        "notifications": {
+            "enabled": true,
+            "captchaContent": "Captcha detected for {username} in {channelname} ({captchatype})",
+            "bannedContent": "Ban detected for {username} in {channelname} ({captchatype})",
+            "reccur": {
+                "enabled": false,
+                "times_to_reccur": 3
+            }
+        },
+        "playAudio": {
+            "enabled": false,
+            "path": "Beep.mp3"
+        },
+        "toastOrPopup": {
+            "enabled": false,
+            "captchaContent": "{username} captcha in {channelname}",
+            "bannedContent": "{username} banned in {channelname}",
+            "termuxToast": {
+                "textColour": "white",
+                "backgroundColour": "black",
+                "position": "top"
+            }
+        },
+        "termux": {
+            "vibrate": {
+                "enabled": false,
+                "time": 2
+            },
+            "textToSpeech": {
+                "enabled": false,
+                "captchaContent": "Captcha detected",
+                "bannedContent": "Ban detected"
+            }
+        }
+    },
+    "webhook": {
+        "enabled": false,
+        "webhookUselessLog": false,
+        "webhookUrl": "Your webhook URL here!",
+        "webhookCaptchaUrl": null,
+        "webhookUserIdToPingOnCaptcha": null,
+        "animal_log": {
+            "enabled": false,
+            "rank": {
+                "common": false,
+                "uncommon": false,
+                "rare": false,
+                "epic": false,
+                "mythical": false,
+                "legendary": false,
+                "fabled": false,
+                "hidden": false,
+                "gem": false
+            }
+        },
+        "others": {
+            "log_lootbox": false,
+            "log_crate": false
+        }
+    },
+    "channelSwitcher": {
+        "enabled": false,
+        "interval": [
+            300,
+            600
+        ],
+        "users": [],
+        "delayBeforeSwitch": [
+            2,
+            4
+        ]
+    },
+    "account": {
+        "commandsStartDelay": [
+            0.8,
+            1.6
+        ],
+        "startupDelay": [
+            2.0,
+            4.0
+        ],
+        "commandsHandlerStartDelay": [
+            1.5,
+            3.0
+        ]
+    },
+    "textCommands": {
+        "prefix": ".",
+        "commandToStopUser": "stop",
+        "commandToStartUser": "start",
+        "commandToRestartAfterCaptcha": "restart_captcha",
+        "allowedUsers": []
+    },
+    "console": {
+        "runConsoleCommandOnCaptcha": false,
+        "runConsoleCommandOnBan": false,
+        "commandToRunOnCaptcha": "",
+        "commandToRunOnBan": ""
+    },
+    "website": {
+        "enabled": true,
+        "password": "owo123",
+        "port": 1200,
+        "enableHost": false
+    }
+}

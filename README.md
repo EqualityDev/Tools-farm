@@ -55,19 +55,29 @@ TOKEN_DISCORD_1 CHANNEL_ID_1
 TOKEN_DISCORD_2 CHANNEL_ID_2
 ```
 
-### 2. Jalankan Bot
+### 2. Setup Global Settings (wajib)
+Salin contoh konfigurasi:
+```bash
+cp config/global_settings.example.json config/global_settings.json
+```
+Edit password/fitur sesuai kebutuhan:
+```bash
+nano config/global_settings.json
+```
+
+### 3. Jalankan Bot
 ```bash
 cd /storage/emulated/0/Tools-farm && bash run.sh
 ```
 
-### 3. Buka Dashboard
+### 4. Buka Dashboard
 Buka browser dan akses:
 ```
 http://localhost:1200
 ```
-Password default: `owo123` (bisa diubah di `config/global_settings.json`)
+Password default: `owo123` (ubah di `config/global_settings.json`)
 
-### 4. Install sebagai App (PWA)
+### 5. Install sebagai App (PWA)
 Di Chrome → ketuk **3 titik** → **Add to Home screen** → icon OwO Tools muncul di home screen!
 
 ---

@@ -90,18 +90,18 @@ def merge_custom_user_settings():
     Merge each <user_id>.settings.json with the new base settings.json.
     Keeps user overrides, adopts new defaults.
     """
-    base_path = "configs/settings.json"
+    base_path = "config/settings.json"
     try:
         with open(base_path, "r") as f:
             base_settings = json.load(f)
     except FileNotFoundError:
-        # This shouldn't happen since settings.json should always be there in configs folder
+        # This shouldn't happen since settings.json should always be there in config folder
         console.log("[red]Base settings.json not found, skipping user settings merge.")
         return
 
-    for filename in os.listdir("configs"):
+    for filename in os.listdir("config"):
         if filename.endswith(".settings.json") and filename != "settings.json":
-            user_path = os.path.join("configs", filename)
+            user_path = os.path.join("config", filename)
             try:
                 with open(user_path, "r") as uf:
                     user_data = json.load(uf)

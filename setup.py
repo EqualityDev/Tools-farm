@@ -296,7 +296,7 @@ if scratchSetup:
                         "\033[1;36m[0]Finished editing tokens.txt successfully!\033[m"
                     )
                     print(
-                        "\033[1;32m[*]exiting code as basic installation is complete\nplease make sure to edit configs (settings, global_settings) from configs folder then\ntype `python uwu.py` to start the code\033[m"
+                        "\033[1;32m[*]exiting code as basic installation is complete\nplease make sure to edit config (settings, global_settings) from config folder then\ntype `python uwu.py` to start the code\033[m"
                     )
                     break
                 except Exception as e:
